@@ -552,6 +552,8 @@ function selectOption(index) {
   selectedOption = index;
   document.querySelectorAll('.option-btn').forEach((b, i) => b.classList.toggle('selected', i === index));
   document.getElementById('btnNext').disabled = false;
+  let _q = currentQuestion;
+  setTimeout(() => { if (currentQuestion === _q) nextQuestion(); }, 400);
 }
 
 function nextQuestion() {
