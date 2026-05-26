@@ -1,560 +1,693 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics & AI | Personal Website</title>
-    <style>
-        /* ===== Reset & Base ===== */
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
-            background: #0a0a12;
-            color: #e8e8f0;
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
-        a { color: inherit; text-decoration: none; }
-
-        /* ===== Animated Background ===== */
-        #bg-canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ===== Navigation ===== */
-        nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-            padding: 20px 48px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10,10,18,0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .nav-logo {
-            font-weight: 700;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .nav-links { display: flex; gap: 32px; }
-        .nav-links a {
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.55);
-            transition: color 0.3s;
-            text-transform: uppercase;
-        }
-        .nav-links a:hover { color: #a78bfa; }
-
-        /* ===== Sections Common ===== */
-        section {
-            position: relative;
-            z-index: 1;
-            padding: 100px 24px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .section-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: rgba(167,139,250,0.5);
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-        .section-title {
-            font-size: 2.4rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #f0f0ff, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .section-desc {
-            font-size: 1.05rem;
-            color: rgba(255,255,255,0.6);
-            max-width: 640px;
-            line-height: 1.9;
-        }
-
-        /* ===== Hero ===== */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 140px 24px 100px;
-            position: relative;
-            z-index: 1;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .hero-badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            padding: 6px 16px;
-            border-radius: 100px;
-            border: 1px solid rgba(167,139,250,0.25);
-            color: rgba(167,139,250,0.7);
-            margin-bottom: 28px;
-        }
-        .hero h1 {
-            font-size: 4.2rem;
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
-        }
-        .hero h1 .highlight {
-            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero .subtitle {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 36px;
-            max-width: 560px;
-            line-height: 1.8;
-        }
-        .hero-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
-            border-radius: 100px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            color: #fff;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-        .hero-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(167,139,250,0.35);
-        }
-        .hero-stats {
-            display: flex;
-            gap: 48px;
-            margin-top: 60px;
-        }
-        .hero-stats div {
-            text-align: left;
-        }
-        .hero-stats .num {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-        }
-        .hero-stats .lbl {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* ===== About ===== */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-top: 40px;
-        }
-        .about-text p {
-            color: rgba(255,255,255,0.65);
-            font-size: 1.02rem;
-            margin-bottom: 20px;
-            line-height: 1.9;
-        }
-        .about-text strong { color: #e8e8f0; }
-        .about-skills h3 {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.3);
-            margin-bottom: 16px;
-        }
-        .skill-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-        .skill-tag {
-            padding: 8px 18px;
-            border-radius: 100px;
-            font-size: 0.82rem;
-            font-weight: 500;
-            background: rgba(167,139,250,0.08);
-            border: 1px solid rgba(167,139,250,0.12);
-            color: rgba(167,139,250,0.8);
-        }
-        .skill-tag.phys { background: rgba(96,165,250,0.08); border-color: rgba(96,165,250,0.12); color: rgba(96,165,250,0.8); }
-        .skill-tag.ai { background: rgba(244,114,182,0.08); border-color: rgba(244,114,182,0.12); color: rgba(244,114,182,0.8); }
-
-        /* ===== Research ===== */
-        .research-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-top: 40px;
-        }
-        .research-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 32px 28px;
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-        }
-        .research-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(167,139,250,0.25);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-        }
-        .research-card .icon {
-            font-size: 2rem;
-            margin-bottom: 16px;
-        }
-        .research-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        .research-card p {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.5);
-            line-height: 1.7;
-        }
-
-        /* ===== Connect / QR ===== */
-        .connect-section {
-            text-align: center;
-            padding-bottom: 120px;
-        }
-        .connect-section .section-title {
-            text-align: center;
-        }
-        .connect-section .section-desc {
-            margin: 0 auto 48px;
-            text-align: center;
-        }
-        .qr-wrapper {
-            display: inline-block;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 28px;
-            padding: 40px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        .qr-wrapper:hover {
-            border-color: rgba(167,139,250,0.2);
-            box-shadow: 0 0 50px rgba(167,139,250,0.05);
-        }
-        .qr-wrapper img {
-            display: block;
-            width: 240px;
-            height: auto;
-            border-radius: 12px;
-        }
-        .qr-caption {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.4);
-        }
-        .qr-caption span {
-            color: #a78bfa;
-            font-weight: 500;
-        }
-
-        /* ===== Footer ===== */
-        footer {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            padding: 40px 24px;
-            border-top: 1px solid rgba(255,255,255,0.03);
-        }
-        footer p {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.2);
-        }
-
-        /* ===== Responsive ===== */
-        @media (max-width: 900px) {
-            .about-grid { grid-template-columns: 1fr; gap: 40px; }
-            .research-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 640px) {
-            nav { padding: 16px 20px; }
-            .nav-links { gap: 16px; }
-            .nav-links a { font-size: 0.75rem; }
-            .hero h1 { font-size: 2.4rem; }
-            .hero .subtitle { font-size: 1rem; }
-            .hero-stats { gap: 24px; flex-wrap: wrap; }
-            section { padding: 60px 20px; }
-            .section-title { font-size: 1.8rem; }
-            .research-grid { grid-template-columns: 1fr; }
-            .qr-wrapper img { width: 180px; }
-            .qr-wrapper { padding: 24px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎓 研究生延毕预测器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#4ade80;--blue:#60a5fa;--yellow:#fbbf24;--orange:#fb923c;--red:#ef4444;--dark-bg:#0f172a;--card-bg:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--dark-bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.page{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.page.active{display:flex}
+.container{width:100%;max-width:560px;background:var(--card-bg);border-radius:24px;padding:40px 36px;box-shadow:0 25px 60px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+#welcomePage .container,#setupPage .container{text-align:center}
+.emoji-logo{font-size:80px;margin-bottom:16px;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--text-muted);font-size:15px;margin-bottom:28px;line-height:1.6}
+.badge-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.badge{background:rgba(255,255,255,0.06);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--text-muted)}
+.disclaimer{font-size:12px;color:#64748b;margin-top:20px;font-style:italic}
+.btn{display:inline-block;padding:14px 40px;border:none;border-radius:16px;font-size:17px;font-weight:600;cursor:pointer;transition:all .25s;color:#fff;letter-spacing:.5px}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 25px rgba(99,102,241,0.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(99,102,241,0.45)}
+.btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 25px rgba(34,197,94,0.35)}
+.btn-success:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(34,197,94,0.45)}
+.btn-lg{padding:18px 56px;font-size:19px;border-radius:20px}
+.setup-section{margin-bottom:32px}
+.setup-section h3{font-size:18px;margin-bottom:16px;color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px}
+.chip-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.chip{padding:12px 20px;border:2px solid rgba(255,255,255,0.1);border-radius:14px;cursor:pointer;transition:all .2s;font-size:15px;color:var(--text-muted);background:rgba(255,255,255,0.03);user-select:none}
+.chip:hover{border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.08)}
+.chip.selected{border-color:#8b5cf6;background:rgba(139,92,246,0.2);color:#fff;box-shadow:0 0 18px rgba(139,92,246,0.2)}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.quiz-counter{font-size:13px;color:var(--text-muted)}
+.progress-bar-outer{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin-bottom:28px;overflow:hidden}
+.progress-bar-inner{height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:3px;transition:width .4s}
+.question-emoji{font-size:48px;margin-bottom:6px}
+.question-text{font-size:20px;font-weight:600;margin-bottom:24px;line-height:1.5}
+.options{display:flex;flex-direction:column;gap:12px}
+.option-btn{width:100%;padding:16px 20px;border:2px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);border-radius:16px;font-size:15px;color:var(--text);cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:12px}
+.option-btn:hover{border-color:rgba(139,92,246,0.5);background:rgba(139,92,246,0.1);transform:translateX(4px)}
+.opt-icon{font-size:28px;flex-shrink:0}
+.option-btn.selected{border-color:#8b5cf6;background:rgba(139,92,246,0.2);box-shadow:0 0 20px rgba(139,92,246,0.15)}
+.quiz-nav{display:flex;justify-content:space-between;margin-top:28px}
+.btn-back{background:rgba(255,255,255,0.06);color:var(--text-muted);padding:10px 24px;border-radius:12px;font-size:14px}
+.btn-back:hover{background:rgba(255,255,255,0.1)}
+#loadingPage .container{text-align:center}
+.loader-icon{font-size:64px;animation:spin 1.5s linear infinite;margin-bottom:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingPage h2{font-size:22px;margin-bottom:8px}
+.loading-sub{color:var(--text-muted);font-size:14px;margin-bottom:24px}
+.loading-bar-outer{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:10px}
+.loading-bar-inner{height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa,#f472b6);border-radius:4px;width:0;transition:width .3s}
+.loading-hint{font-size:13px;color:#64748b;min-height:20px}
+#resultPage .container{text-align:center;position:relative;overflow:hidden}
+.result-tier{font-size:14px;letter-spacing:2px;margin-bottom:8px;opacity:0.8}
+.result-big-emoji{font-size:80px;margin-bottom:12px;animation:popIn .6s cubic-bezier(0.175,0.885,0.32,1.275)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.result-score{font-size:96px;font-weight:800;margin-bottom:4px;line-height:1}
+.result-label{font-size:22px;font-weight:600;margin-bottom:12px}
+.result-info{color:var(--text-muted);font-size:13px;margin-bottom:20px}
+.result-desc{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:28px}
+.tier-green .container{border-color:rgba(74,222,128,0.3)}
+.tier-green .result-score{color:var(--green)}
+.tier-blue .container{border-color:rgba(96,165,250,0.3)}
+.tier-blue .result-score{color:var(--blue)}
+.tier-yellow .container{border-color:rgba(251,191,36,0.3)}
+.tier-yellow .result-score{color:var(--yellow)}
+.tier-orange .container{border-color:rgba(251,146,60,0.5);animation:shake .5s}
+.tier-orange .result-score{color:var(--orange)}
+.tier-red .container{border-color:rgba(239,68,68,0.5);animation:shake .4s}
+.tier-red .result-score{color:var(--red)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.talk-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0}}
+.talk-dialog{background:var(--card-bg);border-radius:24px;padding:36px 32px;width:90%;max-width:420px;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow:0 30px 60px rgba(0,0,0,0.6)}
+.talk-dialog .talk-emoji{font-size:56px;margin-bottom:12px}
+.talk-dialog h3{font-size:20px;margin-bottom:8px}
+.talk-dialog p{color:var(--text-muted);font-size:14px;margin-bottom:20px}
+.talk-dialog textarea{width:100%;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);font-size:15px;resize:none;height:100px;outline:none;font-family:inherit}
+.talk-dialog textarea:focus{border-color:#8b5cf6}
+.talk-dialog .btn{margin-top:16px}
+#successPage .container{text-align:center;border-color:rgba(74,222,128,0.4);animation:flipIn .7s cubic-bezier(0.175,0.885,0.32,1.275)}
+@keyframes flipIn{from{transform:rotateY(90deg) scale(0.8);opacity:0}to{transform:rotateY(0) scale(1);opacity:1}}
+.grad-emoji{font-size:100px;animation:popIn .6s cubic-bezier(0.175,0.885,0.32,1.275)}
+#successPage h2{font-size:30px;background:linear-gradient(135deg,#4ade80,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.certificate{margin-top:20px;padding:20px;border:2px dashed rgba(74,222,128,0.3);border-radius:16px;background:rgba(74,222,128,0.05)}
+.certificate p{color:var(--text-muted);font-size:14px;line-height:1.7}
+.quote-box{margin-top:16px;padding:14px 18px;background:rgba(255,255,255,0.04);border-radius:12px;font-style:italic;color:var(--text-muted);font-size:14px;max-height:80px;overflow-y:auto}
+.quote-box .quote-label{font-style:normal;font-size:12px;color:#64748b;margin-bottom:4px}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
+.confetti{position:absolute;width:12px;height:12px;border-radius:3px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-100px) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+.restart-link{display:inline-block;margin-top:16px;color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline}
+.restart-link:hover{color:var(--text)}
+.author-info{margin-top:18px;font-size:12px;color:#64748b;line-height:1.8}.author-info span{color:#94a3b8}
+</style>
 </head>
 <body>
+<canvas id="particles"></canvas>
 
-    <!-- ===== Canvas Background ===== -->
-    <canvas id="bg-canvas"></canvas>
+<div class="page active" id="welcomePage">
+  <div class="container">
+    <div class="emoji-logo">🎓</div>
+    <h1>研究生延毕预测器</h1>
+    <p class="subtitle">基于"科学"的算法<br>精准评估你与毕业证之间的距离</p>
+    <div class="badge-row">
+      <span class="badge">🔬 科研维度</span>
+      <span class="badge">👔 导师玄学</span>
+      <span class="badge">🧠 精神状态</span>
+      <span class="badge">🌍 外部因素</span>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="showPage('setupPage')">开始预测 🚀</button>
+    <p class="disclaimer">⚠️ 仅供娱乐，切勿当真。你的未来由你自己决定 ✨</p>
+    <p class="author-info">作者：<span>屈小原</span>&emsp;探讨微信：<span>siouuyuann</span></p>
+  </div>
+</div>
 
-    <!-- ===== Navigation ===== -->
-    <nav>
-        <div class="nav-logo">✦ PHYS × AI</div>
-        <div class="nav-links">
-            <a href="#about">About</a>
-            <a href="#research">Research</a>
-            <a href="#connect">Connect</a>
-        </div>
-    </nav>
+<div class="page" id="setupPage">
+  <div class="container">
+    <div class="setup-section">
+      <h3>📚 你现在是哪个阶段？</h3>
+      <div class="chip-row" id="gradeChips">
+        <span class="chip" data-value="硕一">硕一</span>
+        <span class="chip" data-value="硕二">硕二</span>
+        <span class="chip" data-value="硕三">硕三</span>
+        <span class="chip" data-value="博一">博一</span>
+        <span class="chip" data-value="博二">博二</span>
+        <span class="chip" data-value="博三">博三</span>
+        <span class="chip" data-value="博四+">博四+</span>
+      </div>
+    </div>
+    <div class="setup-section">
+      <h3>💡 你的研究类型是？</h3>
+      <div class="chip-row" id="typeChips">
+        <span class="chip" data-value="实验型">🧪 实验型（做实验的）</span>
+        <span class="chip" data-value="计算型">💻 计算型（跑代码的）</span>
+        <span class="chip" data-value="理论型">📐 理论型（推公式的）</span>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-lg" id="btnStartQuiz" onclick="confirmSetup()" disabled>开始答题 📝</button>
+    <span class="restart-link" onclick="showPage('welcomePage')">返回</span>
+  </div>
+</div>
 
-    <!-- ===== Hero ===== -->
-    <section class="hero">
-        <div class="hero-badge">Physics · AI · Curiosity</div>
-        <h1>
-            Exploring the Universe<br>
-            with <span class="highlight">Intelligence</span>
-        </h1>
-        <p class="subtitle">
-            我是物理学研究生，同时也在探索人工智能的前沿。<br>
-            我相信物理学的逻辑与 AI 的智能交汇处，藏着最迷人的答案。
-        </p>
-        <a href="#connect" class="hero-cta">
-            Connect with Me ↓
-        </a>
-        <div class="hero-stats">
-            <div><div class="num">Physics</div><div class="lbl">Graduate Researcher</div></div>
-            <div><div class="num">AI</div><div class="lbl">Deep Enthusiast</div></div>
-            <div><div class="num">∞</div><div class="lbl">Curiosity</div></div>
-        </div>
-    </section>
+<div class="page" id="quizPage">
+  <div class="container">
+    <div class="quiz-header">
+      <span class="quiz-counter" id="quizCounter">第 1 / 12 题</span>
+      <span class="quiz-counter" id="categoryLabel">🔬 科研进展</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="question-emoji" id="qEmoji">🔬</div>
+    <div class="question-text" id="qText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="quiz-nav">
+      <button class="btn btn-back" id="btnBack" onclick="prevQuestion()" style="visibility:hidden;">← 上一题</button>
+      <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()" disabled>下一题 →</button>
+    </div>
+  </div>
+</div>
 
-    <!-- ===== About ===== -->
-    <section id="about">
-        <div class="section-label">About</div>
-        <div class="about-grid">
-            <div class="about-text">
-                <h2 class="section-title">物理学家 · 程序员 · 终身学习者</h2>
-                <p>
-                    我是一名<strong>物理学研究生</strong>，研究方向横跨传统物理与前沿人工智能。
-                    我的日常是在推导方程和训练模型之间切换——从量子多体问题到神经网络架构，
-                    我着迷于<strong>用物理的思维方式理解 AI</strong>，也热衷于<strong>用 AI 的工具探索物理</strong>。
-                </p>
-                <p>
-                    我相信，物理学培养的直觉和数学功底，与人工智能带来的计算范式变革，
-                    两者的结合将开启全新的科学发现时代。如果你也对 <strong>Physics × AI</strong> 的交汇感兴趣，
-                    欢迎联系我，一起交流想法！
-                </p>
-            </div>
-            <div class="about-skills">
-                <h3>Physics</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag phys">Quantum Mechanics</span>
-                    <span class="skill-tag phys">Statistical Mechanics</span>
-                    <span class="skill-tag phys">Condensed Matter</span>
-                    <span class="skill-tag phys">Computational Physics</span>
-                </div>
-                <h3>AI / ML</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag ai">Deep Learning</span>
-                    <span class="skill-tag ai">Neural Networks</span>
-                    <span class="skill-tag ai">Scientific ML</span>
-                    <span class="skill-tag ai">LLMs & Agents</span>
-                </div>
-                <h3>Tools</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag">Python</span>
-                    <span class="skill-tag">PyTorch</span>
-                    <span class="skill-tag">TensorFlow</span>
-                    <span class="skill-tag">C++</span>
-                    <span class="skill-tag">Mathematica</span>
-                </div>
-            </div>
-        </div>
-    </section>
+<div class="page" id="loadingPage">
+  <div class="container">
+    <div class="loader-icon">🔮</div>
+    <h2>正在运算中...</h2>
+    <p class="loading-sub">结合年级因素、导师心情、研究类型<br>进行综合分析</p>
+    <div class="loading-bar-outer"><div class="loading-bar-inner" id="loadingBar"></div></div>
+    <p class="loading-hint" id="loadingHint">读取实验数据中...</p>
+  </div>
+</div>
 
-    <!-- ===== Research Interests ===== -->
-    <section id="research">
-        <div class="section-label">Research Interests</div>
-        <h2 class="section-title">Where Physics Meets AI</h2>
-        <p class="section-desc">
-            我关注的研究方向集中在两个领域的交叉地带——用物理启发 AI，用 AI 加速物理。
-        </p>
-        <div class="research-grid">
-            <div class="research-card">
-                <div class="icon">⚛️</div>
-                <h3>AI for Physics</h3>
-                <p>
-                    利用机器学习方法解决量子多体问题、加速第一性原理计算、
-                    从海量实验数据中发现新的物理规律。
-                </p>
-            </div>
-            <div class="research-card">
-                <div class="icon">🧠</div>
-                <h3>Physics for AI</h3>
-                <p>
-                    将物理学的对称性、守恒律和几何结构引入神经网络设计，
-                    探索统计力学与学习理论之间的深层联系。
-                </p>
-            </div>
-            <div class="research-card">
-                <div class="icon">🔬</div>
-                <h3>Scientific ML</h3>
-                <p>
-                    开发物理约束的神经网络（PINNs）、神经算子、
-                    以及可解释的 AI 模型来求解微分方程和模拟复杂系统。
-                </p>
-            </div>
-            <div class="research-card">
-                <div class="icon">🌌</div>
-                <h3>Quantum Computing</h3>
-                <p>
-                    探索变分量子算法、量子机器学习、以及经典-量子混合
-                    计算框架在凝聚态物理中的应用。
-                </p>
-            </div>
-            <div class="research-card">
-                <div class="icon">📊</div>
-                <h3>Data-Driven Discovery</h3>
-                <p>
-                    用贝叶斯推理、信息论和降维方法从高维物理数据中
-                    提取可解释的科学洞见。
-                </p>
-            </div>
-            <div class="research-card">
-                <div class="icon">🤖</div>
-                <h3>AI Agents & Automation</h3>
-                <p>
-                    构建能够自主设计实验、分析结果并迭代假设的
-                    AI 科研助手，加速科学发现的闭环流程。
-                </p>
-            </div>
-        </div>
-    </section>
+<div class="page" id="resultPage">
+  <div class="container" id="resultContainer">
+    <div class="result-tier" id="resultTier"></div>
+    <div class="result-big-emoji" id="resultEmoji"></div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-label" id="resultLabel"></div>
+    <p class="result-info" id="resultInfo"></p>
+    <p class="result-desc" id="resultDesc"></p>
+    <button class="btn btn-primary" id="resultBtn">再来一次 🔄</button>
+    <span class="restart-link" onclick="restart()">重新预测</span>
+  </div>
+</div>
 
-    <!-- ===== Connect ===== -->
-    <section id="connect" class="connect-section">
-        <div class="section-label">Connect</div>
-        <h2 class="section-title">Let's Talk</h2>
-        <p class="section-desc">
-            如果你也对 Physics × AI 充满热情，欢迎添加我的联系方式。<br>
-            一起讨论、合作、或者 simply geek out about cool science。
-        </p>
-        <div class="qr-wrapper">
-            <img src="qr-code.jpg" alt="Contact QR Code">
-            <div class="qr-caption">
-                Scan to connect · <span>期待与你交流</span>
-            </div>
-        </div>
-    </section>
+<div id="talkOverlay" class="talk-overlay" style="display:none;">
+  <div class="talk-dialog">
+    <div class="talk-emoji">💬</div>
+    <h3>把心里的话说出来吧</h3>
+    <p>科研路上，总有些话憋了很久...<br>这里没人评判你，想说就说 📝</p>
+    <textarea id="talkText" placeholder="（比如：导师上周又让我重写...实验数据三个月没进展...我真的好累...）" maxlength="300"></textarea>
+    <button class="btn btn-primary" onclick="submitTalk()">说出来就好了 ✨</button>
+  </div>
+</div>
 
-    <!-- ===== Footer ===== -->
-    <footer>
-        <p>© 2026 Physics × AI Explorer · Built with curiosity</p>
-    </footer>
+<div class="page" id="successPage">
+  <div class="container">
+    <div class="grad-emoji">🎉</div>
+    <h2>你一定能毕业！</h2>
+    <div class="certificate">
+      <p>📜 <strong>毕业保障证书</strong></p>
+      <p>经"延毕预测委员会"慎重审议，<br>你的答辩申请已获批准。<br>学位证书正在派送中 🚚💨</p>
+      <p style="margin-top:8px; color:#4ade80;">—— 此证，特此授予 ——</p>
+    </div>
+    <div class="quote-box" id="quoteBox" style="display:none;">
+      <p class="quote-label">你刚才说：</p>
+      <p id="quoteText"></p>
+    </div>
+    <button class="btn btn-success" style="margin-top:24px;" onclick="restart()">再测一次 🔄</button>
+  </div>
+</div>
 
-    <!-- ===== Background Animation Script ===== -->
-    <script>
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let mouse = { x: -9999, y: -9999 };
+<div class="confetti-container" id="confettiContainer"></div>
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resize();
-        window.addEventListener('resize', resize);
+<script>
+// ==================== 粒子背景 ====================
+(function(){
+  const c=document.getElementById('particles'),ctx=c.getContext('2d');
+  let w,h,particles=[];
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<50;i++)particles.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+.5,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4});
+  function draw(){ctx.clearRect(0,0,w,h);ctx.fillStyle='rgba(148,163,184,0.15)';for(let p of particles){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0}requestAnimationFrame(draw)}
+  draw();
+})();
 
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.3;
-                this.opacity = Math.random() * 0.4 + 0.1;
-                this.pulse = Math.random() * Math.PI * 2;
-                this.pulseSpeed = 0.01 + Math.random() * 0.01;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.pulse += this.pulseSpeed;
-                // wrap around
-                if (this.x < -20) this.x = canvas.width + 20;
-                if (this.x > canvas.width + 20) this.x = -20;
-                if (this.y < -20) this.y = canvas.height + 20;
-                if (this.y > canvas.height + 20) this.y = -20;
-            }
-            draw() {
-                const a = this.opacity * (0.7 + 0.3 * Math.sin(this.pulse));
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(167, 139, 250, ${a})`;
-                ctx.fill();
-            }
-        }
+// ==================== 配置选择 ====================
+let userGrade='',userType='';
+(function(){
+  document.querySelectorAll('#gradeChips .chip').forEach(c=>{c.addEventListener('click',function(){document.querySelectorAll('#gradeChips .chip').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');userGrade=this.dataset.value;checkSetup()})});
+  document.querySelectorAll('#typeChips .chip').forEach(c=>{c.addEventListener('click',function(){document.querySelectorAll('#typeChips .chip').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');userType=this.dataset.value;checkSetup()})});
+})();
+function checkSetup(){document.getElementById('btnStartQuiz').disabled=!(userGrade&&userType)}
+function confirmSetup(){if(!userGrade||!userType)return;selectQuestions();startQuiz()}
 
-        const count = Math.min(100, Math.floor(canvas.width * canvas.height / 12000));
-        for (let i = 0; i < count; i++) {
-            particles.push(new Particle());
-        }
+// ==================== 题库 ====================
+const questionPool = [
+  // ===== 通用题 ×12 =====
+  { grades:[], types:[], category:"🔬 科研进展", emoji:"📝", text:"你投出去的论文，状态最常停在哪个阶段？", options:[
+    {icon:"🎉", text:"直接 accept，编辑眼睛雪亮", score:2},
+    {icon:"✏️", text:"Major revision，但最终能过", score:5},
+    {icon:"🔄", text:"Desk reject x3，辗转多个期刊", score:8},
+    {icon:"📮", text:"With editor 三个月没动静...", score:12}
+  ]},
+  { grades:[], types:[], category:"👔 导师关系", emoji:"📋", text:"导师对你的论文修改意见通常是？", options:[
+    {icon:"👍", text:"改几个措辞，基本认可", score:3},
+    {icon:"🔴", text:"满屏批注，但每条都有道理", score:5},
+    {icon:"🎭", text:"上次说的和这次说的完全相反", score:8},
+    {icon:"🌪️", text:"「重新写一遍，方向不对」—— 第 7 版了", score:12}
+  ]},
+  { grades:[], types:[], category:"🧠 精神状态", emoji:"⏰", text:"面对截止日期，你的应对方式是？", options:[
+    {icon:"🏆", text:"提前一周完成，还有时间润色", score:2},
+    {icon:"🔥", text:"Deadline 前 48 小时极限冲刺", score:6},
+    {icon:"😌", text:"先躺一天缓解焦虑，然后继续焦虑", score:9},
+    {icon:"🌌", text:"截止日期是什么？我现在很平静", score:13}
+  ]},
+  { grades:[], types:[], category:"🧠 精神状态", emoji:"🌙", text:"晚上躺在床上，你脑子里在想什么？", options:[
+    {icon:"📖", text:"回顾今天的收获，规划明天", score:2},
+    {icon:"🎮", text:"今天游戏打得不错，明天再肝论文", score:5},
+    {icon:"😰", text:"「我的创新点到底是什么...」", score:8},
+    {icon:"🌌", text:"「宇宙的尽头是编制，我的尽头是延毕」", score:12}
+  ]},
+  { grades:[], types:[], category:"👔 导师关系", emoji:"🎤", text:"组会上你的汇报风格是？", options:[
+    {icon:"📊", text:"数据翔实、逻辑清晰，导师频频点头", score:2},
+    {icon:"📁", text:"中规中矩，该有的都有", score:5},
+    {icon:"🎭", text:"用华丽 PPT 掩盖空洞数据", score:8},
+    {icon:"🐟", text:"「这周...主要在...阅读文献」—— 每次同一句", score:12}
+  ]},
+  { grades:[], types:[], category:"🔮 玄学加成", emoji:"⭐", text:"你相信运气对科研的影响吗？", options:[
+    {icon:"🙅", text:"完全不信，我命由我不由天", score:2},
+    {icon:"🤷", text:"偶尔看看运势，就当消遣", score:4},
+    {icon:"🔭", text:"每周必看，水逆期间不投稿", score:8},
+    {icon:"🔮", text:"信！我是天秤座——在写和不写之间永远摇摆", score:11}
+  ]},
+  { grades:[], types:[], category:"🧠 精神状态", emoji:"☕", text:"你每天靠什么维持精神力？", options:[
+    {icon:"💤", text:"规律作息，8 小时睡眠", score:2},
+    {icon:"☕", text:"每天 2 杯咖啡，刚刚好", score:4},
+    {icon:"🍵", text:"奶茶 + 红牛 + 咖啡，三管齐下", score:8},
+    {icon:"😈", text:"纯粹靠对毕业的恐惧驱动", score:12}
+  ]},
+  { grades:[], types:[], category:"🧠 精神状态", emoji:"😴", text:"你最近一周的平均睡眠时间是？", options:[
+    {icon:"😊", text:"7-8 小时，作息规律", score:2},
+    {icon:"🥱", text:"5-6 小时，勉强够用", score:5},
+    {icon:"😵", text:"3-4 小时，靠咖啡续命", score:9},
+    {icon:"👻", text:"白天是行尸走肉，晚上是精神小伙", score:12}
+  ]},
+  { grades:[], types:[], category:"🧠 精神状态", emoji:"📱", text:"写论文时你的手机在哪？", options:[
+    {icon:"📵", text:"锁在抽屉里，写完再看", score:2},
+    {icon:"🔕", text:"静音放旁边，偶尔瞄一眼", score:5},
+    {icon:"📲", text:"写 10 分钟刷 20 分钟", score:9},
+    {icon:"🎯", text:"论文没写几个字，小红书刷了 3 小时", score:13}
+  ]},
+  { grades:[], types:[], category:"🧠 精神状态", emoji:"🏃", text:"你最近的运动频率是？", options:[
+    {icon:"💪", text:"每周 3 次以上，汗流浃背", score:2},
+    {icon:"🚶", text:"偶尔散散步，保持活动", score:4},
+    {icon:"🛋️", text:"从宿舍到实验室就是我最大的运动量", score:8},
+    {icon:"🪑", text:"微信步数每天不超过 200", score:12}
+  ]},
+  { grades:[], types:[], category:"🌍 外部因素", emoji:"👥", text:"看到同门发了顶会/顶刊，你的反应是？", options:[
+    {icon:"🎉", text:"真心为他高兴，自己也更有动力", score:2},
+    {icon:"🤔", text:"有点焦虑，但很快调整", score:5},
+    {icon:"😞", text:"心态崩了，自我怀疑一整天", score:9},
+    {icon:"💀", text:"选择性失明，假装没看到", score:12}
+  ]},
+  { grades:[], types:[], category:"🌍 外部因素", emoji:"📚", text:"提到「开始写论文」，你的第一反应是？", options:[
+    {icon:"💻", text:"打开 Word，思路清晰", score:2},
+    {icon:"😤", text:"先挣扎半小时，最终进入状态", score:5},
+    {icon:"🧹", text:"突然觉得房间需要大扫除", score:9},
+    {icon:"🛌", text:"看了标题就觉得累，先去躺一会", score:12}
+  ]},
 
-        function drawConnections() {
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 150) {
-                        const a = (1 - dist / 150) * 0.08;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(167, 139, 250, ${a})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
+  // ===== 低年级专属 ×5（硕一/硕二/博一/博二） =====
+  { grades:["硕一","硕二","博一","博二"], types:[], category:"🔬 科研进展", emoji:"📖", text:"入学到现在，你的文献阅读量？", options:[
+    {icon:"📚", text:"每周精读 3 篇以上，笔记详尽", score:2},
+    {icon:"📖", text:"每周泛读几篇，重点记一下", score:5},
+    {icon:"😅", text:"组会前突击看摘要", score:8},
+    {icon:"💤", text:"文献？什么文献？我只看了导师的朋友圈", score:12}
+  ]},
+  { grades:["硕一","硕二","博一","博二"], types:[], category:"🔬 科研进展", emoji:"🎯", text:"你对目前的研究方向有多确信？", options:[
+    {icon:"💡", text:"方向明确，充满热情", score:2},
+    {icon:"🤔", text:"大概知道要做什么，细节待摸索", score:5},
+    {icon:"🌫️", text:"导师给的题目我至今没看懂", score:9},
+    {icon:"😵", text:"我的研究方向就是——寻找研究方向", score:13}
+  ]},
+  { grades:["硕一","硕二","博一","博二"], types:[], category:"👔 导师关系", emoji:"👔", text:"你的导师多久主动联系你一次？", options:[
+    {icon:"⚡", text:"每周组会雷打不动，督促得非常到位", score:2},
+    {icon:"📅", text:"一个月聊一次，节奏刚刚好", score:4},
+    {icon:"👻", text:"一学期一次，仿佛人间蒸发", score:9},
+    {icon:"💬", text:"只在深夜用 60 秒语音方阵轰炸我", score:11}
+  ]},
+  { grades:["硕一","硕二","博一","博二"], types:[], category:"🌍 外部因素", emoji:"📝", text:"你的课程压力和科研冲突大吗？", options:[
+    {icon:"⚖️", text:"平衡得很好，两边都不耽误", score:2},
+    {icon:"😅", text:"有点吃力，但还能应付", score:5},
+    {icon:"😫", text:"课程论文和科研两边都在鸽", score:9},
+    {icon:"💀", text:"每天都在想：我是来上课的还是来做科研的？", score:12}
+  ]},
+  { grades:["硕一","硕二","博一","博二"], types:[], category:"🧠 精神状态", emoji:"🔮", text:"你对按时毕业的信心有多少？", options:[
+    {icon:"😎", text:"信心满满，一切尽在掌控", score:2},
+    {icon:"🤞", text:"应该可以，只要不出意外", score:5},
+    {icon:"😰", text:"听师兄师姐说很难...已经慌了", score:9},
+    {icon:"🌌", text:"毕业？这个词听起来像科幻", score:13}
+  ]},
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            drawConnections();
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
+  // ===== 高年级专属 ×5（硕三/博三/博四+） =====
+  { grades:["硕三","博三","博四+"], types:[], category:"🔬 科研进展", emoji:"📄", text:"你的毕业论文/大论文写了多少？", options:[
+    {icon:"✅", text:"已经写完，正在润色", score:2},
+    {icon:"📝", text:"写了一大半，框架完整", score:5},
+    {icon:"😰", text:"只写了绪论...和致谢", score:9},
+    {icon:"💀", text:"Word 文档创建于两年前，至今空白", score:13}
+  ]},
+  { grades:["硕三","博三","博四+"], types:[], category:"🔬 科研进展", emoji:"🎯", text:"你对盲审/外审有把握吗？", options:[
+    {icon:"😎", text:"稳了，创新点和数据都过硬", score:2},
+    {icon:"🤞", text:"有点忐忑，但应该能过", score:5},
+    {icon:"😨", text:"每天都在祈祷审稿人那天心情好", score:9},
+    {icon:"🫠", text:"盲审是什么？我选择性地忘记了", score:13}
+  ]},
+  { grades:["硕三","博三","博四+"], types:[], category:"🌍 外部因素", emoji:"💼", text:"你对毕业后的去向有规划吗？", options:[
+    {icon:"🎯", text:"offer 已到手，坐等毕业", score:2},
+    {icon:"📋", text:"有几个备选，还在面试", score:5},
+    {icon:"😰", text:"海投 200 份简历，石沉大海", score:9},
+    {icon:"🌌", text:"毕业都成问题，哪有心思想之后", score:13}
+  ]},
+  { grades:["硕三","博三","博四+"], types:[], category:"🧠 精神状态", emoji:"😰", text:"家里人问「什么时候毕业」你什么反应？", options:[
+    {icon:"😊", text:"淡定回答，我有明确的时间线", score:2},
+    {icon:"😅", text:"含糊其辞，转移话题", score:5},
+    {icon:"😤", text:"每次被问都想原地爆炸", score:9},
+    {icon:"📵", text:"过年不敢回家了，电话也不敢接", score:13}
+  ]},
+  { grades:["硕三","博三","博四+"], types:[], category:"👔 导师关系", emoji:"🎭", text:"导师最近对你的态度有什么变化？", options:[
+    {icon:"😊", text:"一如既往地支持，帮我改论文", score:2},
+    {icon:"🤷", text:"比以前催得更紧了，但总体还行", score:5},
+    {icon:"😒", text:"越来越不耐烦，见面就叹气", score:9},
+    {icon:"👻", text:"已经三个月没跟我说过话了", score:13}
+  ]},
+
+  // ===== 实验型专属 ×3 =====
+  { grades:[], types:["实验型"], category:"🔬 科研进展", emoji:"🧪", text:"你的实验结果，通常情况是？", options:[
+    {icon:"✨", text:"数据漂亮，可重复性强", score:2},
+    {icon:"🤔", text:"大趋势对，但个别样本出问题", score:5},
+    {icon:"😅", text:"结果和预期完全相反，得重新解释", score:8},
+    {icon:"💀", text:"做了三个月，样品全部污染，重头再来", score:13}
+  ]},
+  { grades:[], types:["实验型"], category:"🌍 外部因素", emoji:"🔧", text:"你的实验设备/试剂供应怎么样？", options:[
+    {icon:"🚀", text:"设备先进，试剂充足，要啥有啥", score:2},
+    {icon:"⚙️", text:"偶尔故障或断货，但很快能解决", score:5},
+    {icon:"🔥", text:"每个月坏一次，和维修师傅拜把子了", score:9},
+    {icon:"💔", text:"设备比我爸年纪还大，做实验前要拜三拜", score:12}
+  ]},
+  { grades:[], types:["实验型"], category:"🔬 科研进展", emoji:"🔬", text:"你的实验可重复性如何？", options:[
+    {icon:"✅", text:"换个操作员也能完美复现", score:2},
+    {icon:"🤞", text:"我自己能复现，别人做够呛", score:5},
+    {icon:"🎰", text:"同样的步骤，每次结果都不一样", score:9},
+    {icon:"🌩️", text:"唯一复现成功的那次我觉得是幻觉", score:13}
+  ]},
+
+  // ===== 计算型专属 ×3 =====
+  { grades:[], types:["计算型"], category:"🔬 科研进展", emoji:"💻", text:"你的代码/模型训练，通常是什么体验？", options:[
+    {icon:"✨", text:"一行跑通，结果漂亮", score:2},
+    {icon:"🔧", text:"调参调几天，最终能收敛", score:5},
+    {icon:"😅", text:"GPU 跑了三天，loss 不降反升", score:9},
+    {icon:"💀", text:"代码跑到一半，服务器宕机了", score:12}
+  ]},
+  { grades:[], types:["计算型"], category:"🌍 外部因素", emoji:"🖥️", text:"你的算力资源够用吗？", options:[
+    {icon:"🚀", text:"实验室有 A100 集群，随便用", score:2},
+    {icon:"⏳", text:"要排队，但基本轮得到", score:5},
+    {icon:"😤", text:"GPU 全靠抢，比演唱会抢票还难", score:9},
+    {icon:"🫠", text:"用自己笔记本跑模型，风扇像直升机", score:12}
+  ]},
+  { grades:[], types:["计算型"], category:"🔬 科研进展", emoji:"🐛", text:"遇到 bug 调试不出来的时候，你一般？", options:[
+    {icon:"🔍", text:"冷静分析，逐步定位，很快解决", score:2},
+    {icon:"💬", text:"问 ChatGPT / 问师兄，通常能搞定", score:5},
+    {icon:"😤", text:"盯屏幕三小时，最后发现少了个分号", score:9},
+    {icon:"🔥", text:"删库重写，然后发现还是同样的 bug", score:13}
+  ]},
+
+  // ===== 理论型专属 ×3 =====
+  { grades:[], types:["理论型"], category:"🔬 科研进展", emoji:"📐", text:"你的定理/推导进展如何？", options:[
+    {icon:"✨", text:"证明过程优雅，审稿人都说美", score:2},
+    {icon:"🤔", text:"卡在一个引理上，但思路是通的", score:5},
+    {icon:"😵", text:"每一步推导都在怀疑自己是否智商欠费", score:9},
+    {icon:"💀", text:"「显然可得」—— 我写了 20 页都没显然", score:12}
+  ]},
+  { grades:[], types:["理论型"], category:"🌍 外部因素", emoji:"👥", text:"有人能看懂你的推导吗？", options:[
+    {icon:"🤝", text:"导师和同门都能讨论，互相启发", score:2},
+    {icon:"🙋", text:"只有导师勉强能看懂一半", score:5},
+    {icon:"😶", text:"整个实验室没人懂我在干什么", score:9},
+    {icon:"🌌", text:"我自己有时候也看不懂自己写的", score:12}
+  ]},
+  { grades:[], types:["理论型"], category:"🧠 精神状态", emoji:"💡", text:"你的理论灵感通常来自于？", options:[
+    {icon:"📖", text:"深入阅读后的自然延伸", score:2},
+    {icon:"💬", text:"和导师/同门讨论碰撞出来", score:5},
+    {icon:"🚿", text:"洗澡/散步时灵光一现", score:8},
+    {icon:"🌌", text:"灵感？那是在梦里才有的东西", score:12}
+  ]},
+];
+
+// ==================== 选题逻辑（12 通用 + 5 年级 + 3 类型 = 20 题） ====================
+let selectedQuestions = [];
+
+function selectQuestions(){
+  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr }
+
+  const common = questionPool.filter(q => q.grades.length===0 && q.types.length===0);
+  const gradeQs = questionPool.filter(q => q.grades.includes(userGrade) && q.types.length===0);
+  const typeQs = questionPool.filter(q => q.types.includes(userType));
+
+  // 选取: 12 通用 + 5 年级 + 3 类型 = 20
+  let picked = [];
+  picked = picked.concat(shuffle([...common]).slice(0,12));
+  picked = picked.concat(shuffle([...gradeQs]).slice(0,5));
+  picked = picked.concat(shuffle([...typeQs]).slice(0,3));
+
+  // 如果某类不够，从 common 中补
+  if(picked.length < 20){
+    const used = new Set(picked);
+    const remaining = common.filter(q => !used.has(q));
+    picked = picked.concat(shuffle(remaining).slice(0, 20 - picked.length));
+  }
+
+  selectedQuestions = shuffle(picked).slice(0,20);
+}
+
+// ==================== 结果等级 ====================
+const tiers = [
+  { range:[0,25], tier:"🌟 天选之子", emoji:"🌟", label:"毕业锦鲤本鲤", cc:"tier-green", desc:"实验顺利、论文秒过、导师慈祥——你上辈子大概救过系主任。按这个节奏，毕业只是时间问题，甚至可能提前毕业！" },
+  { range:[25,45], tier:"💪 稳如泰山", emoji:"💪", label:"正常毕业型选手", cc:"tier-blue", desc:"偶尔焦虑，但总体可控。虽有波折但能搞定，导师虽然挑刺但不会卡你。保持节奏，毕业证在向你招手~" },
+  { range:[45,65], tier:"🌊 略有波澜", emoji:"🌊", label:"需要努努力的候补选手", cc:"tier-yellow", desc:"有些指标在危险边缘试探……可能是数据不够漂亮，或者和导师沟通脱节。抓紧调整，还有时间！" },
+  { range:[65,85], tier:"⚠️ 岌岌可危", emoji:"⚠️", label:"高风险延毕人群", cc:"tier-orange", desc:"多项指标亮红灯！实验进展堪忧，导师关系微妙，精神压力爆表。如果不采取行动，延毕通知书可能已经在路上了……" },
+  { range:[85,101], tier:"💀 延毕圣体", emoji:"💀", label:"建议提前做好心理建设", cc:"tier-red", desc:"各项指标全面沦陷！实验数据没眼看，导师已读不回，精神状态在崩溃边缘。延毕似乎已成定局——但别灰心，还有转机！" },
+];
+
+// ==================== 年级加权系数 ====================
+const gradeMultiplier = {
+  "硕一": 0.70, "硕二": 0.85, "硕三": 1.00,
+  "博一": 0.75, "博二": 0.90, "博三": 1.05, "博四+": 1.20
+};
+
+let currentQuestion = 0;
+let answers = [];
+let selectedOption = null;
+let currentTier = null;
+
+// ==================== 页面切换 ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ==================== 开始答题 ====================
+function startQuiz() {
+  currentQuestion = 0;
+  answers = new Array(selectedQuestions.length).fill(null);
+  selectedOption = null;
+  showPage('quizPage');
+  renderQuestion();
+}
+
+// ==================== 渲染题目 ====================
+function renderQuestion() {
+  const q = selectedQuestions[currentQuestion];
+  document.getElementById('quizCounter').textContent = `第 ${currentQuestion+1} / ${selectedQuestions.length} 题`;
+  document.getElementById('categoryLabel').textContent = q.category;
+  document.getElementById('progressBar').style.width = ((currentQuestion) / selectedQuestions.length * 100) + '%';
+  document.getElementById('qEmoji').textContent = q.emoji;
+  document.getElementById('qText').textContent = q.text;
+  
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  selectedOption = answers[currentQuestion];
+  
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    if (selectedOption === i) btn.classList.add('selected');
+    btn.innerHTML = `<span class="opt-icon">${opt.icon}</span>${opt.text}`;
+    btn.addEventListener('click', () => selectOption(i));
+    container.appendChild(btn);
+  });
+  
+  document.getElementById('btnBack').style.visibility = currentQuestion > 0 ? 'visible' : 'hidden';
+  const nextBtn = document.getElementById('btnNext');
+  nextBtn.disabled = selectedOption === null;
+  nextBtn.textContent = currentQuestion < selectedQuestions.length - 1 ? '下一题 →' : '查看结果 🔮';
+}
+
+function selectOption(index) {
+  answers[currentQuestion] = index;
+  selectedOption = index;
+  document.querySelectorAll('.option-btn').forEach((b, i) => b.classList.toggle('selected', i === index));
+  document.getElementById('btnNext').disabled = false;
+}
+
+function nextQuestion() {
+  if (selectedOption === null) return;
+  if (currentQuestion < selectedQuestions.length - 1) {
+    currentQuestion++;
+    selectedOption = answers[currentQuestion];
+    renderQuestion();
+  } else {
+    showLoading();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    selectedOption = answers[currentQuestion];
+    renderQuestion();
+  }
+}
+
+// ==================== 加载页 ====================
+function showLoading() {
+  showPage('loadingPage');
+  const bar = document.getElementById('loadingBar');
+  const hint = document.getElementById('loadingHint');
+  bar.style.width = '0%';
+  
+  const hints = [
+    '读取实验数据中...', '分析导师评价...', '测算精神压力指数...',
+    '检查设备故障率...', '查询星座运势...', '跑机器学习模型...',
+    '校准年级参数...', '匹配同类型研究生样本...', '生成预测报告...'
+  ];
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 15 + 5;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      hint.textContent = '✅ 分析完成！';
+      setTimeout(() => showResult(), 400);
+    }
+    bar.style.width = progress + '%';
+    hint.textContent = hints[Math.floor(Math.random() * hints.length)];
+  }, 300);
+}
+
+// ==================== 计算结果（含年级加权） ====================
+function calcResult() {
+  let total = 0, maxTotal = 0;
+  for (let i = 0; i < selectedQuestions.length; i++) {
+    total += selectedQuestions[i].options[answers[i]].score;
+    maxTotal += selectedQuestions[i].options[3].score;
+  }
+  let baseScore = Math.round((total / maxTotal) * 100);
+  const multiplier = gradeMultiplier[userGrade] || 1.0;
+  let adjustedScore = Math.round(baseScore * multiplier);
+  if (adjustedScore > 100) adjustedScore = 100;
+  return { baseScore, adjustedScore, multiplier };
+}
+
+// ==================== 结果页 ====================
+function showResult() {
+  const { adjustedScore: score, multiplier } = calcResult();
+  const tier = tiers.find(t => score >= t.range[0] && score < t.range[1]) || tiers[tiers.length-1];
+  currentTier = tier;
+  
+  document.getElementById('resultPage').className = 'page active ' + tier.cc;
+  
+  document.getElementById('resultTier').textContent = tier.tier;
+  document.getElementById('resultEmoji').textContent = tier.emoji;
+  document.getElementById('resultScore').textContent = score + '%';
+  document.getElementById('resultLabel').textContent = tier.label;
+  document.getElementById('resultInfo').textContent = userGrade + ' · ' + userType + ' （年级系数 x' + multiplier.toFixed(2) + '）';
+  document.getElementById('resultDesc').textContent = tier.desc;
+  
+  const btn = document.getElementById('resultBtn');
+  if (tier === tiers[3] || tier === tiers[4]) {
+    btn.textContent = '说说心里话 💭';
+    btn.className = 'btn btn-primary';
+    btn.onclick = showTalk;
+  } else {
+    btn.textContent = '再来一次 🔄';
+    btn.className = 'btn btn-primary';
+    btn.onclick = restart;
+  }
+  
+  showPage('resultPage');
+  
+  if (tier === tiers[0] || tier === tiers[1]) spawnConfetti(60);
+  if (tier === tiers[2]) spawnConfetti(20);
+}
+
+// ==================== 倾诉 ====================
+function showTalk() {
+  setTimeout(() => {
+    document.getElementById('talkOverlay').style.display = 'flex';
+    document.getElementById('talkText').value = '';
+    document.getElementById('talkText').focus();
+  }, 1200);
+}
+
+function submitTalk() {
+  const text = document.getElementById('talkText').value.trim();
+  if (!text) return;
+  
+  document.getElementById('talkOverlay').style.display = 'none';
+  document.getElementById('resultPage').classList.remove('active');
+  
+  setTimeout(() => {
+    showPage('successPage');
+    document.getElementById('quoteText').textContent = '"' + text + '"';
+    document.getElementById('quoteBox').style.display = 'block';
+    spawnConfetti(120);
+  }, 300);
+}
+
+// ==================== 撒花特效 ====================
+function spawnConfetti(count) {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#f472b6','#a78bfa','#4ade80','#60a5fa','#fbbf24','#fb923c','#34d399','#f87171'];
+  
+  for (let i=0; i<count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random()*100 + '%';
+    el.style.top = -(Math.random()*100) + 'px';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.width = (Math.random()*10+6) + 'px';
+    el.style.height = (Math.random()*10+6) + 'px';
+    el.style.animationDuration = (Math.random()*2+2.5) + 's';
+    el.style.animationDelay = Math.random()*2 + 's';
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+
+// ==================== 重新开始 ====================
+function restart() {
+  document.getElementById('talkOverlay').style.display = 'none';
+  document.getElementById('confettiContainer').innerHTML = '';
+  document.getElementById('quoteBox').style.display = 'none';
+  answers = [];
+  currentQuestion = 0;
+  selectedOption = null;
+  selectedQuestions = [];
+  userGrade = '';
+  userType = '';
+  document.querySelectorAll('#gradeChips .chip, #typeChips .chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btnStartQuiz').disabled = true;
+  document.getElementById('resultPage').className = 'page';
+  showPage('welcomePage');
+}
+</script>
 
 </body>
 </html>
