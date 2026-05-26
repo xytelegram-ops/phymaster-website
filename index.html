@@ -98,7 +98,23 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
 .restart-link:hover{color:var(--text)}
 .author-info{margin-top:14px;font-size:12px;color:#64748b}
 
-</style>
+
+/* ===== 联系弹窗 ===== */
+.contact-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s}
+.contact-card{background:var(--card-bg);border-radius:24px;padding:36px 32px;width:90%;max-width:380px;text-align:center;border:1px solid rgba(139,92,246,0.3);box-shadow:0 20px 50px rgba(139,92,246,0.15)}
+.contact-card .contact-icon{font-size:56px;margin-bottom:12px}
+.contact-card h3{font-size:20px;margin-bottom:6px;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.contact-card .contact-sub{color:var(--text-muted);font-size:13px;margin-bottom:24px}
+.wechat-box{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 16px;margin-bottom:16px}
+.wechat-box .wechat-icon{font-size:28px;flex-shrink:0}
+.wechat-box .wechat-id{flex:1;font-size:17px;font-weight:600;color:#a78bfa;text-align:left;user-select:all}
+.copy-btn{padding:10px 20px;border:1px solid rgba(139,92,246,0.4);border-radius:10px;background:rgba(139,92,246,0.1);color:#a78bfa;font-size:13px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.copy-btn:hover{background:rgba(139,92,246,0.2)}
+.copy-btn.copied{background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.4);color:#4ade80}
+.contact-card .btn-close{margin-top:20px;padding:10px 32px;background:rgba(255,255,255,0.06);color:var(--text-muted);border:none;border-radius:12px;font-size:14px;cursor:pointer}
+.contact-card .btn-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+.suggest-link{display:inline-block;margin-top:20px;color:#64748b;font-size:13px;cursor:pointer;transition:color .2s}
+.suggest-link:hover{color:#a78bfa}</style>
 </head>
 <body>
 <canvas id="particles"></canvas>
@@ -117,6 +133,7 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
     <button class="btn btn-primary btn-lg" onclick="showPage('setupPage')">开始预测 🚀</button>
     <p class="disclaimer">⚠️ 仅供娱乐，切勿当真。你的未来由你自己决定 ✨</p>
     <p class="author-info">作者：屈小原</p>
+    <span class="suggest-link" onclick="showContact()">💡 提个建议</span>
   </div>
 </div>
 
@@ -213,6 +230,7 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
       <p id="quoteText"></p>
     </div>
     <button class="btn btn-success" style="margin-top:24px;" onclick="restart()">再测一次 🔄</button>
+    <span class="suggest-link" onclick="showContact()">💡 提个建议</span>
   </div>
 </div>
 
@@ -688,7 +706,23 @@ function restart() {
   document.getElementById('resultPage').className = 'page';
   showPage('welcomePage');
 }
-</script>
 
-</body>
+function showContact(){document.getElementById('contactOverlay').style.display='flex'}
+function closeContact(){document.getElementById('contactOverlay').style.display='none';document.getElementById('copyBtn').textContent='复制';document.getElementById('copyBtn').classList.remove('copied')}
+function copyWechat(){navigator.clipboard.writeText('PainmasterAI').then(()=>{const b=document.getElementById('copyBtn');b.textContent='已复制!';b.classList.add('copied');setTimeout(()=>{b.textContent='复制';b.classList.remove('copied')},2000)})}</script>
+
+
+<div id="contactOverlay" class="contact-overlay" style="display:none;">
+  <div class="contact-card">
+    <div class="contact-icon">💬</div>
+    <h3>联系作者</h3>
+    <p class="contact-sub">有任何建议或想法，欢迎交流</p>
+    <div class="wechat-box">
+      <span class="wechat-icon">💚</span>
+      <span class="wechat-id" id="wechatId">PainmasterAI</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyWechat()">复制</button>
+    </div>
+    <button class="btn-close" onclick="closeContact()">关闭</button>
+  </div>
+</div></body>
 </html>
