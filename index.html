@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎓 研究生延毕预测器</title>
+<title>🎓 研究生延毕预测系统</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--green:#4ade80;--blue:#60a5fa;--yellow:#fbbf24;--orange:#fb923c;--red:#ef4444;--dark-bg:#0f172a;--card-bg:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8}
@@ -56,11 +56,11 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
 .loading-bar-inner{height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa,#f472b6);border-radius:4px;width:0;transition:width .3s}
 .loading-hint{font-size:13px;color:#64748b;min-height:20px}
 #resultPage .container{text-align:center;position:relative;overflow:hidden}
-.result-tier{font-size:14px;letter-spacing:2px;margin-bottom:8px;opacity:0.8}
+.result-tier{font-size:20px;letter-spacing:2px;margin-bottom:8px;opacity:0.8}
 .result-big-emoji{font-size:80px;margin-bottom:12px;animation:popIn .6s cubic-bezier(0.175,0.885,0.32,1.275)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.result-score{font-size:96px;font-weight:800;margin-bottom:4px;line-height:1}
-.result-label{font-size:22px;font-weight:600;margin-bottom:12px}
+.result-score{font-size:48px;font-weight:800;margin-bottom:4px;line-height:1}
+.result-label{font-size:32px;font-weight:600;margin-bottom:12px}
 .result-info{color:var(--text-muted);font-size:13px;margin-bottom:20px}
 .result-desc{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:28px}
 .tier-green .container{border-color:rgba(74,222,128,0.3)}
@@ -96,7 +96,8 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
 @keyframes confettiFall{0%{transform:translateY(-100px) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
 .restart-link{display:inline-block;margin-top:16px;color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline}
 .restart-link:hover{color:var(--text)}
-.author-info{margin-top:18px;font-size:12px;color:#64748b;line-height:1.8}.author-info span{color:#94a3b8}
+.author-info{margin-top:14px;font-size:12px;color:#64748b}
+
 </style>
 </head>
 <body>
@@ -105,7 +106,7 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
 <div class="page active" id="welcomePage">
   <div class="container">
     <div class="emoji-logo">🎓</div>
-    <h1>研究生延毕预测器</h1>
+    <h1>研究生延毕预测系统</h1>
     <p class="subtitle">基于"科学"的算法<br>精准评估你与毕业证之间的距离</p>
     <div class="badge-row">
       <span class="badge">🔬 科研维度</span>
@@ -115,7 +116,7 @@ h1{font-size:32px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a
     </div>
     <button class="btn btn-primary btn-lg" onclick="showPage('setupPage')">开始预测 🚀</button>
     <p class="disclaimer">⚠️ 仅供娱乐，切勿当真。你的未来由你自己决定 ✨</p>
-    <p class="author-info">作者：<span>屈小原</span>&emsp;探讨微信：<span>siouuyuann</span></p>
+    <p class="author-info">作者：屈小原</p>
   </div>
 </div>
 
@@ -241,10 +242,10 @@ function confirmSetup(){if(!userGrade||!userType)return;selectQuestions();startQ
 // ==================== 题库 ====================
 const questionPool = [
   // ===== 通用题 ×12 =====
-  { grades:[], types:[], category:"🔬 科研进展", emoji:"📝", text:"你投出去的论文，状态最常停在哪个阶段？", options:[
-    {icon:"🎉", text:"直接 accept，编辑眼睛雪亮", score:2},
+  { grades:[], types:[], category:"🔬 科研进展", emoji:"📝", text:"准备投稿或已投稿的你，最焦虑的是什么？", options:[
+    {icon:"🎉", text:"直接 accept，顺利发表", score:2},
     {icon:"✏️", text:"Major revision，但最终能过", score:5},
-    {icon:"🔄", text:"Desk reject x3，辗转多个期刊", score:8},
+    {icon:"🔄", text:"Desk reject 多次，辗转多个期刊", score:8},
     {icon:"📮", text:"With editor 三个月没动静...", score:12}
   ]},
   { grades:[], types:[], category:"👔 导师关系", emoji:"📋", text:"导师对你的论文修改意见通常是？", options:[
@@ -265,7 +266,7 @@ const questionPool = [
     {icon:"😰", text:"「我的创新点到底是什么...」", score:8},
     {icon:"🌌", text:"「宇宙的尽头是编制，我的尽头是延毕」", score:12}
   ]},
-  { grades:[], types:[], category:"👔 导师关系", emoji:"🎤", text:"组会上你的汇报风格是？", options:[
+  { grades:[], types:[], category:"👔 导师关系", emoji:"🎤", text:"在导师面前汇报时，你的风格是？", options:[
     {icon:"📊", text:"数据翔实、逻辑清晰，导师频频点头", score:2},
     {icon:"📁", text:"中规中矩，该有的都有", score:5},
     {icon:"🎭", text:"用华丽 PPT 掩盖空洞数据", score:8},
@@ -275,7 +276,7 @@ const questionPool = [
     {icon:"🙅", text:"完全不信，我命由我不由天", score:2},
     {icon:"🤷", text:"偶尔看看运势，就当消遣", score:4},
     {icon:"🔭", text:"每周必看，水逆期间不投稿", score:8},
-    {icon:"🔮", text:"信！我是天秤座——在写和不写之间永远摇摆", score:11}
+    {icon:"🔮", text:"信！水逆期间绝不动笔", score:11}
   ]},
   { grades:[], types:[], category:"🧠 精神状态", emoji:"☕", text:"你每天靠什么维持精神力？", options:[
     {icon:"💤", text:"规律作息，8 小时睡眠", score:2},
@@ -293,7 +294,7 @@ const questionPool = [
     {icon:"📵", text:"锁在抽屉里，写完再看", score:2},
     {icon:"🔕", text:"静音放旁边，偶尔瞄一眼", score:5},
     {icon:"📲", text:"写 10 分钟刷 20 分钟", score:9},
-    {icon:"🎯", text:"论文没写几个字，小红书刷了 3 小时", score:13}
+    {icon:"🎯", text:"论文没写几个字，短视频刷了 3 小时", score:13}
   ]},
   { grades:[], types:[], category:"🧠 精神状态", emoji:"🏃", text:"你最近的运动频率是？", options:[
     {icon:"💪", text:"每周 3 次以上，汗流浃背", score:2},
@@ -301,13 +302,13 @@ const questionPool = [
     {icon:"🛋️", text:"从宿舍到实验室就是我最大的运动量", score:8},
     {icon:"🪑", text:"微信步数每天不超过 200", score:12}
   ]},
-  { grades:[], types:[], category:"🌍 外部因素", emoji:"👥", text:"看到同门发了顶会/顶刊，你的反应是？", options:[
-    {icon:"🎉", text:"真心为他高兴，自己也更有动力", score:2},
-    {icon:"🤔", text:"有点焦虑，但很快调整", score:5},
-    {icon:"😞", text:"心态崩了，自我怀疑一整天", score:9},
-    {icon:"💀", text:"选择性失明，假装没看到", score:12}
+  { grades:[], types:[], category:"🌍 外部因素", emoji:"👥", text:"研究遇到瓶颈时，你通常会怎么做？", options:[
+    {icon:"🔍", text:"冷静分析问题，一步步排查", score:2},
+    {icon:"💡", text:"换个思路，查阅文献找灵感", score:5},
+    {icon:"😞", text:"焦虑烦躁，先摆烂一天再说", score:9},
+    {icon:"💀", text:"直接求助导师或师兄师姐", score:12}
   ]},
-  { grades:[], types:[], category:"🌍 外部因素", emoji:"📚", text:"提到「开始写论文」，你的第一反应是？", options:[
+  { grades:[], types:[], category:"🌍 外部因素", emoji:"📚", text:"一想到要写论文，你的第一反应是？", options:[
     {icon:"💻", text:"打开 Word，思路清晰", score:2},
     {icon:"😤", text:"先挣扎半小时，最终进入状态", score:5},
     {icon:"🧹", text:"突然觉得房间需要大扫除", score:9},
@@ -328,16 +329,16 @@ const questionPool = [
     {icon:"😵", text:"我的研究方向就是——寻找研究方向", score:13}
   ]},
   { grades:["硕一","硕二","博一","博二"], types:[], category:"👔 导师关系", emoji:"👔", text:"你的导师多久主动联系你一次？", options:[
-    {icon:"⚡", text:"每周组会雷打不动，督促得非常到位", score:2},
+    {icon:"⚡", text:"每周至少一次，督促得很到位", score:2},
     {icon:"📅", text:"一个月聊一次，节奏刚刚好", score:4},
     {icon:"👻", text:"一学期一次，仿佛人间蒸发", score:9},
-    {icon:"💬", text:"只在深夜用 60 秒语音方阵轰炸我", score:11}
+    {icon:"💬", text:"深夜用长语音轰炸我", score:11}
   ]},
-  { grades:["硕一","硕二","博一","博二"], types:[], category:"🌍 外部因素", emoji:"📝", text:"你的课程压力和科研冲突大吗？", options:[
-    {icon:"⚖️", text:"平衡得很好，两边都不耽误", score:2},
-    {icon:"😅", text:"有点吃力，但还能应付", score:5},
-    {icon:"😫", text:"课程论文和科研两边都在鸽", score:9},
-    {icon:"💀", text:"每天都在想：我是来上课的还是来做科研的？", score:12}
+  { grades:["硕一","硕二","博一","博二"], types:[], category:"🌍 外部因素", emoji:"📝", text:"你觉得自己掌握的研究方法够用吗？", options:[
+    {icon:"💪", text:"方法扎实，什么都能自己搞定", score:2},
+    {icon:"📖", text:"大部分还行，遇到新问题要现学", score:5},
+    {icon:"😰", text:"很多方法一知半解，边做边蒙", score:9},
+    {icon:"💀", text:"会的太少，每天都在怀疑自己怎么考上的", score:12}
   ]},
   { grades:["硕一","硕二","博一","博二"], types:[], category:"🧠 精神状态", emoji:"🔮", text:"你对按时毕业的信心有多少？", options:[
     {icon:"😎", text:"信心满满，一切尽在掌控", score:2},
@@ -353,7 +354,7 @@ const questionPool = [
     {icon:"😰", text:"只写了绪论...和致谢", score:9},
     {icon:"💀", text:"Word 文档创建于两年前，至今空白", score:13}
   ]},
-  { grades:["硕三","博三","博四+"], types:[], category:"🔬 科研进展", emoji:"🎯", text:"你对盲审/外审有把握吗？", options:[
+  { grades:["硕三","博三","博四+"], types:[], category:"🔬 科研进展", emoji:"🎯", text:"你对毕业审核/盲审有把握吗？", options:[
     {icon:"😎", text:"稳了，创新点和数据都过硬", score:2},
     {icon:"🤞", text:"有点忐忑，但应该能过", score:5},
     {icon:"😨", text:"每天都在祈祷审稿人那天心情好", score:9},
@@ -383,7 +384,7 @@ const questionPool = [
     {icon:"✨", text:"数据漂亮，可重复性强", score:2},
     {icon:"🤔", text:"大趋势对，但个别样本出问题", score:5},
     {icon:"😅", text:"结果和预期完全相反，得重新解释", score:8},
-    {icon:"💀", text:"做了三个月，样品全部污染，重头再来", score:13}
+    {icon:"💀", text:"反复做了三个月，至今没有可用的数据", score:13}
   ]},
   { grades:[], types:["实验型"], category:"🌍 外部因素", emoji:"🔧", text:"你的实验设备/试剂供应怎么样？", options:[
     {icon:"🚀", text:"设备先进，试剂充足，要啥有啥", score:2},
@@ -408,7 +409,7 @@ const questionPool = [
   { grades:[], types:["计算型"], category:"🌍 外部因素", emoji:"🖥️", text:"你的算力资源够用吗？", options:[
     {icon:"🚀", text:"实验室有 A100 集群，随便用", score:2},
     {icon:"⏳", text:"要排队，但基本轮得到", score:5},
-    {icon:"😤", text:"GPU 全靠抢，比演唱会抢票还难", score:9},
+    {icon:"😤", text:"GPU 全靠抢，排队排到天荒地老", score:9},
     {icon:"🫠", text:"用自己笔记本跑模型，风扇像直升机", score:12}
   ]},
   { grades:[], types:["计算型"], category:"🔬 科研进展", emoji:"🐛", text:"遇到 bug 调试不出来的时候，你一般？", options:[
