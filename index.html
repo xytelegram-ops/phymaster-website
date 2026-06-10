@@ -191,6 +191,8 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   display: block;
+  object-fit: contain;
+  object-position: center;
 }
 .wechat-copy {
   display: flex; align-items: center;
@@ -361,5 +363,4 @@ footer {
 <script>
 function copyWechat(e) {
   e.stopPropagation();
-  navigator.clipboard.writeText('siouuyuann').then(() => {
-    const btn = document.get
+  navigator.clipboard.writeText('siou
