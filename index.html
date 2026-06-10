@@ -140,7 +140,7 @@ body {
 }
 .author-section .section-divider {
   display: flex; align-items: center; gap: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 .author-section .section-divider::before,
 .author-section .section-divider::after {
@@ -153,52 +153,54 @@ body {
 }
 .author-card {
   background: #fff;
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.03);
   border: 1px solid rgba(0,0,0,0.05);
-  display: flex; align-items: center;
-  padding: 18px 24px;
-  gap: 20px;
+  display: flex;
+  gap: 24px;
+  padding: 24px 28px;
 }
 .author-left {
   flex: 1; min-width: 0;
 }
 .author-left .name {
-  font-size: 18px; font-weight: 700; color: #0f172a;
+  font-size: 19px; font-weight: 700; color: #0f172a;
   letter-spacing: -0.3px;
-  display: inline;
 }
 .author-left .identity {
   font-size: 13px; color: #64748b;
-  display: inline; margin-left: 10px;
+  margin-top: 4px;
 }
 .author-left .identity .hl {
   color: #6366f1; font-weight: 600;
 }
 .author-left .bio {
-  font-size: 13px; color: #94a3b8;
-  line-height: 1.6;
-  margin-top: 6px;
+  font-size: 14px; color: #64748b;
+  line-height: 1.7;
+  margin-top: 10px;
 }
 .author-right {
   flex-shrink: 0;
-  display: flex; align-items: center; gap: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 .author-right .qr-code {
-  width: 72px; height: 72px;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  width: 100px; height: 100px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   display: block;
-  object-fit: contain;
 }
 .wechat-copy {
-  display: flex; align-items: center; gap: 0;
+  display: flex; align-items: center;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   background: #fff;
   transition: all 0.2s;
+  width: 100%;
 }
 .wechat-copy:hover {
   border-color: #6366f1;
@@ -209,8 +211,7 @@ body {
 }
 .wechat-copy code {
   flex: 1; font-size: 12px; color: #6366f1; font-weight: 700;
-  padding: 7px 6px;
-  letter-spacing: 0.2px;
+  padding: 7px 6px; letter-spacing: 0.2px;
 }
 .wechat-copy .wc-copy-btn {
   padding: 7px 12px; font-size: 11px; font-weight: 600;
@@ -224,7 +225,7 @@ body {
 /* --- footer --- */
 footer {
   text-align: center;
-  padding: 0 24px 36px;
+  padding: 0 24px 40px;
   font-size: 12px;
   color: #94a3b8;
 }
@@ -239,26 +240,32 @@ footer {
 
 @media (max-width: 560px) {
   .author-section { padding: 0 16px 24px; }
-  .author-section .section-divider { margin-bottom: 12px; }
+  .author-section .section-divider { margin-bottom: 14px; }
   .author-section .section-divider span { font-size: 12px; letter-spacing: 1px; }
   .author-card {
-    flex-direction: column; align-items: stretch;
-    padding: 0; gap: 0;
+    flex-direction: column-reverse;
+    gap: 0;
+    padding: 20px;
+    text-align: center;
   }
   .author-right {
-    width: 100%; justify-content: flex-start;
-    padding: 14px 20px;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 14px;
+    padding-bottom: 16px;
     border-bottom: 1px solid #f1f5f9;
   }
-  .author-right .qr-code { width: 60px; height: 60px; }
-  .author-left {
-    padding: 16px 20px;
+  .author-right .qr-code {
+    width: 72px; height: 72px;
   }
-  .author-left .identity {
-    display: block; margin-left: 0; margin-top: 2px;
+  .wechat-copy {
+    flex: 1; max-width: 200px;
   }
-  .author-left .bio { font-size: 12px; margin-top: 8px; }
-  .wechat-copy { flex: 1; }
+  .author-left { padding-top: 14px; }
+  .author-left .name { font-size: 17px; }
+  .author-left .identity { font-size: 12px; margin-top: 2px; }
+  .author-left .bio { font-size: 13px; margin-top: 8px; }
 }
 </style>
 </head>
@@ -355,5 +362,4 @@ footer {
 function copyWechat(e) {
   e.stopPropagation();
   navigator.clipboard.writeText('siouuyuann').then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '已复制 ✓
+    const btn = document.get
