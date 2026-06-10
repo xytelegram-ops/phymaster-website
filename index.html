@@ -189,35 +189,36 @@ body {
 .about-card .meta .row2 { font-size: 13px; color: #64748b; margin-bottom: 2px; }
 .about-card .meta .row3 { font-size: 13px; color: #94a3b8; line-height: 1.6; }
 .about-card .meta .wechat-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  margin-top: 8px;
-  padding: 5px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px;
+  padding: 7px 14px;
+  border: 1px solid #e0e4f0;
+  border-radius: 8px;
+  font-size: 13px;
   color: #475569;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
   user-select: none;
-  background: #fff;
+  background: #fafbfd;
 }
 .about-card .meta .wechat-tag:hover {
   border-color: #6366f1;
-  background: #f5f3ff;
+  background: #f0f2ff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.06);
 }
-.about-card .meta .wechat-tag .wt-icon { font-size: 14px; flex-shrink: 0; }
-.about-card .meta .wechat-tag .wt-id { font-weight: 600; color: #6366f1; }
+.about-card .meta .wechat-tag .wt-icon { font-size: 15px; flex-shrink: 0; }
+.about-card .meta .wechat-tag .wt-id { font-weight: 650; color: #6366f1; letter-spacing: 0.1px; }
 .about-card .meta .wechat-tag .wt-copy {
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 4px;
-  background: #6366f1;
-  color: #fff;
-  font-weight: 600;
-  transition: background 0.15s;
-  margin-left: 2px;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 14px; border-radius: 6px;
+  background: #6366f1; color: #fff;
+  border: none; cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-left: 4px;
 }
-.about-card .meta .wechat-tag .wt-copy.copied { background: #10b981; }
+.about-card .meta .wechat-tag .wt-copy:hover { background: #4f46e5; }
+.about-card .meta .wechat-tag .wt-copy.copied { background: #10b981; pointer-events: none; }
 
 /* --- responsive --- */
 @media (max-width: 740px) {
@@ -313,16 +314,14 @@ body {
       <div class="row3">以实践诠释 AI 价值，用智能点亮日常点滴。</div>
       <div class="wechat-tag" onclick="copyWechat(event)">
         <span class="wt-icon">💬</span>
-        <span>微信 </span><span class="wt-id">siouuyuann</span>
-        <span class="wt-copy" id="copyBtn">复制</span>
+        <span class="wt-id">siouuyuann</span>
+        <button class="wt-copy" id="copyBtn" onclick="event.stopPropagation(); copyWechat(event);">复制</button>
       </div>
     </div>
   </div>
 </section>
 
-<footer>
-  PhyMaster · 作者 屈小原 · 所有计算均在浏览器本地完成，数据不会上传 · <span style="color:#6366f1">扫码或复制微信号联系作者</span>
-</footer>
+<footer></footer>
 
 <script>
 function copyWechat(e) {
@@ -344,8 +343,4 @@ function fallbackCopy(text, btn) {
   ta.value = text;
   ta.style.position = 'fixed';
   ta.style.left = '-9999px';
-  ta.style.top = '-9999px';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  tr
+  ta.style.top = '-9
