@@ -185,10 +185,11 @@ body {
   display: flex; align-items: center; gap: 12px;
 }
 .author-right .qr-code {
-  width: 56px; height: 56px;
-  border-radius: 10px;
+  width: 72px; height: 72px;
+  border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   display: block;
+  object-fit: contain;
 }
 .wechat-copy {
   display: flex; align-items: center; gap: 0;
@@ -349,7 +350,4 @@ function copyWechat(e) {
     }, 2000);
   });
 }
-</script>
-
-</body>
-</html>
+</scr
