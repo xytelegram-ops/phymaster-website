@@ -221,12 +221,6 @@ body {
 .wechat-copy .wc-copy-btn:hover { background: #4f46e5; }
 .wechat-copy .wc-copy-btn.copied { background: #10b981; }
 
-@media (max-width: 560px) {
-  .author-card { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .author-left .identity { display: block; margin-left: 0; margin-top: 2px; }
-  .author-right { width: 100%; justify-content: flex-start; }
-}
-
 /* --- footer --- */
 footer {
   text-align: center;
@@ -235,16 +229,36 @@ footer {
   color: #94a3b8;
 }
 
+/* --- responsive --- */
 @media (max-width: 740px) {
   .tools { grid-template-columns: 1fr; padding: 0 16px 40px; }
   .tool-card { padding: 24px 20px; }
   .hero { padding: 40px 16px 28px; }
   .hero h1 { font-size: 26px; }
-  .author-card { flex-direction: column-reverse; }
-  .author-right { width: 100%; border-left: none; border-top: 1px solid rgba(0,0,0,0.05); flex-direction: row; gap: 16px; padding: 20px 24px; }
-  .author-right .qr-code { width: 80px; height: 80px; }
-  .author-right .qr-label { display: none; }
-  .author-left { padding: 24px; }
+}
+
+@media (max-width: 560px) {
+  .author-section { padding: 0 16px 24px; }
+  .author-section .section-divider { margin-bottom: 12px; }
+  .author-section .section-divider span { font-size: 12px; letter-spacing: 1px; }
+  .author-card {
+    flex-direction: column; align-items: stretch;
+    padding: 0; gap: 0;
+  }
+  .author-right {
+    width: 100%; justify-content: flex-start;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .author-right .qr-code { width: 60px; height: 60px; }
+  .author-left {
+    padding: 16px 20px;
+  }
+  .author-left .identity {
+    display: block; margin-left: 0; margin-top: 2px;
+  }
+  .author-left .bio { font-size: 12px; margin-top: 8px; }
+  .wechat-copy { flex: 1; }
 }
 </style>
 </head>
@@ -342,12 +356,4 @@ function copyWechat(e) {
   e.stopPropagation();
   navigator.clipboard.writeText('siouuyuann').then(() => {
     const btn = document.getElementById('copyBtn');
-    btn.textContent = '已复制 ✓';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '复制';
-      btn.classList.remove('copied');
-    }, 2000);
-  });
-}
-</scr
+    btn.textContent = '已复制 ✓
