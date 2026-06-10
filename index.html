@@ -188,8 +188,9 @@ body {
   min-width: 100px;
 }
 .author-right .qr-code {
-  width: 100px;
-  height: 100px;
+  width: auto;
+  max-width: 100px;
+  height: auto;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   display: block;
@@ -347,7 +348,7 @@ footer {
       <p class="bio">以实践诠释 AI 价值，用智能点亮日常点滴。</p>
     </div>
     <div class="author-right">
-      <img class="qr-code" src="authercode.jpg" alt="微信二维码" style="width:100px;height:100px;">
+      <img class="qr-code" src="authercode.jpg" alt="微信二维码">
       <div class="wechat-copy" onclick="copyWechat(event)">
         <span class="wc-icon">💬</span>
         <code>siouuyuann</code>
@@ -364,4 +365,4 @@ footer {
 <script>
 function copyWechat(e) {
   e.stopPropagation();
-  navigator.c
+  navigator.clipboard.writeTe
