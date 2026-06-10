@@ -132,107 +132,90 @@ body {
 }
 .tool-card:hover .arrow { color: #6366f1; transform: translateX(4px); }
 
-/* --- author section --- */
-.author-section {
+/* --- about me --- */
+.about-me {
   max-width: 640px;
   margin: 0 auto;
-  padding: 0 24px 30px;
-}
-.author-section .section-divider {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 20px;
-}
-.author-section .section-divider::before,
-.author-section .section-divider::after {
-  content: ''; flex: 1; height: 1px;
-  background: linear-gradient(90deg, transparent, #d1d5db, transparent);
-}
-.author-section .section-divider span {
-  font-size: 13px; font-weight: 600; color: #94a3b8;
-  letter-spacing: 2px;
-}
-.author-card {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.03);
-  border: 1px solid rgba(0,0,0,0.05);
-  display: flex;
-  gap: 24px;
-  padding: 24px 28px;
-}
-.author-left {
-  flex: 1; min-width: 0;
-}
-.author-left .name {
-  font-size: 19px; font-weight: 700; color: #0f172a;
-  letter-spacing: -0.3px;
-}
-.author-left .identity {
-  font-size: 13px; color: #64748b;
-  margin-top: 4px;
-}
-.author-left .identity .hl {
-  color: #6366f1; font-weight: 600;
-}
-.author-left .bio {
-  font-size: 14px; color: #64748b;
-  line-height: 1.7;
-  margin-top: 10px;
-}
-.author-right {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  min-width: 100px;
-}
-.author-right .qr-code {
-  width: auto;
-  max-width: 100px;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  display: block;
-  flex-shrink: 0;
-}
-.wechat-copy {
-  display: flex; align-items: center;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.2s;
-  width: 100%;
-}
-.wechat-copy:hover {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.06);
-}
-.wechat-copy .wc-icon {
-  font-size: 14px; padding: 0 0 0 8px; flex-shrink: 0;
-}
-.wechat-copy code {
-  flex: 1; font-size: 12px; color: #6366f1; font-weight: 700;
-  padding: 7px 6px; letter-spacing: 0.2px;
-}
-.wechat-copy .wc-copy-btn {
-  padding: 7px 12px; font-size: 11px; font-weight: 600;
-  background: #6366f1; color: #fff;
-  border: none; cursor: pointer;
-  transition: background 0.15s; white-space: nowrap;
-}
-.wechat-copy .wc-copy-btn:hover { background: #4f46e5; }
-.wechat-copy .wc-copy-btn.copied { background: #10b981; }
-
-/* --- footer --- */
-footer {
-  text-align: center;
   padding: 0 24px 40px;
-  font-size: 12px;
-  color: #94a3b8;
 }
+.about-me-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.about-me-header span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  padding: 0 32px;
+}
+.about-me-header span::before,
+.about-me-header span::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 1px;
+  background: #d1d5db;
+}
+.about-me-header span::before { left: 0; }
+.about-me-header span::after { right: 0; }
+
+.about-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.02);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.about-card .qr-img {
+  display: block;
+  width: 80px;
+  min-width: 80px;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+.about-card .meta { flex: 1; min-width: 0; }
+.about-card .meta .row1 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.about-card .meta .row1 .nick { font-size: 18px; font-weight: 700; color: #0f172a; }
+.about-card .meta .row1 .school { font-size: 13px; color: #6366f1; font-weight: 600; }
+.about-card .meta .row2 { font-size: 13px; color: #64748b; margin-bottom: 2px; }
+.about-card .meta .row3 { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+.about-card .meta .wechat-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.about-card .meta .wechat-tag:hover {
+  border-color: #6366f1;
+  background: #f5f3ff;
+}
+.about-card .meta .wechat-tag .wt-icon { font-size: 14px; flex-shrink: 0; }
+.about-card .meta .wechat-tag .wt-id { font-weight: 600; color: #6366f1; }
+.about-card .meta .wechat-tag .wt-copy {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: #6366f1;
+  color: #fff;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.about-card .meta .wechat-tag .wt-copy.copied { background: #10b981; }
 
 /* --- responsive --- */
 @media (max-width: 740px) {
@@ -242,34 +225,11 @@ footer {
   .hero h1 { font-size: 26px; }
 }
 
-@media (max-width: 560px) {
-  .author-section { padding: 0 16px 24px; }
-  .author-section .section-divider { margin-bottom: 14px; }
-  .author-section .section-divider span { font-size: 12px; letter-spacing: 1px; }
-  .author-card {
-    flex-direction: column-reverse;
-    gap: 0;
-    padding: 20px;
-    text-align: center;
-  }
-  .author-right {
-    width: 100%;
-    flex-direction: row;
-    justify-content: center;
-    gap: 14px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  .author-right .qr-code {
-    width: 72px; height: 72px;
-  }
-  .wechat-copy {
-    flex: 1; max-width: 200px;
-  }
-  .author-left { padding-top: 14px; }
-  .author-left .name { font-size: 17px; }
-  .author-left .identity { font-size: 12px; margin-top: 2px; }
-  .author-left .bio { font-size: 13px; margin-top: 8px; }
+@media (max-width: 500px) {
+  .about-me { padding: 0 16px 32px; }
+  .about-card { flex-direction: column; text-align: center; gap: 14px; padding: 20px; }
+  .about-card .qr-img { width: 100px; min-width: 100px; }
+  .about-card .meta .row1 { justify-content: center; flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -339,20 +299,20 @@ footer {
 
 </section>
 
-<section class="author-section">
-  <div class="section-divider"><span>关于作者</span></div>
-  <div class="author-card">
-    <div class="author-left">
-      <div class="name">屈小原</div>
-      <div class="identity"><span class="hl">河南大学</span> · 物理学硕士在读</div>
-      <p class="bio">以实践诠释 AI 价值，用智能点亮日常点滴。</p>
-    </div>
-    <div class="author-right">
-      <img class="qr-code" src="authercode.jpg" alt="微信二维码">
-      <div class="wechat-copy" onclick="copyWechat(event)">
-        <span class="wc-icon">💬</span>
-        <code>siouuyuann</code>
-        <span class="wc-copy-btn" id="copyBtn">复制</span>
+<section class="about-me">
+  <div class="about-me-header"><span>关于作者</span></div>
+  <div class="about-card">
+    <img class="qr-img" src="authercode.jpg" alt="微信二维码">
+    <div class="meta">
+      <div class="row1">
+        <span class="nick">屈小原</span>
+        <span class="school">河南大学 · 物理学硕士在读</span>
+      </div>
+      <div class="row3">以实践诠释 AI 价值，用智能点亮日常点滴。</div>
+      <div class="wechat-tag" onclick="copyWechat(event)">
+        <span class="wt-icon">💬</span>
+        <span>微信 </span><span class="wt-id">siouuyuann</span>
+        <span class="wt-copy" id="copyBtn">复制</span>
       </div>
     </div>
   </div>
@@ -365,4 +325,22 @@ footer {
 <script>
 function copyWechat(e) {
   e.stopPropagation();
-  const btn = document.getEle
+  const btn = document.getElementById('copyBtn');
+  const text = 'siouuyuann';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      btn.textContent = '已复制 ✓';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+    }).catch(function() { fallbackCopy(text, btn); });
+  } else {
+    fallbackCopy(text, btn);
+  }
+}
+function fallbackCopy(text, btn) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { docum
