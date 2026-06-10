@@ -304,7 +304,7 @@ body {
 <section class="about-me">
   <div class="about-me-header"><span>关于作者</span></div>
   <div class="about-card">
-    <img class="qr-img" src="authercode.jpg" alt="微信二维码">
+    <img class="qr-img" src="authercode.png" alt="微信二维码">
     <div class="meta">
       <div class="row1">
         <span class="nick">屈小原</span>
@@ -327,14 +327,14 @@ body {
 <script>
 function copyWechat(e) {
   e.stopPropagation();
-  const btn = document.getElementById('copyBtn');
-  const text = 'siouuyuann';
+  var btn = document.getElementById('copyBtn');
+  var text = 'siouuyuann';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(function() {
-      btn.textContent = '已复制 ✓';
-      btn.classList.add('copied');
-      setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
-    }).catch(function() { fallbackCopy(text, btn); });
+      showCopyOk(btn);
+    }).catch(function() {
+      fallbackCopy(text, btn);
+    });
   } else {
     fallbackCopy(text, btn);
   }
@@ -342,4 +342,10 @@ function copyWechat(e) {
 function fallbackCopy(text, btn) {
   var ta = document.createElement('textarea');
   ta.value = text;
-  ta.st
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  ta.style.top = '-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  tr
