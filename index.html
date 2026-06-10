@@ -5,342 +5,196 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PhyMaster — 科研工具箱</title>
 <style>
-:root { color-scheme: light; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #f8f9fc;
+  --card: #fff;
+  --text: #1a1a2e;
+  --text2: #5a6072;
+  --text3: #8b92a5;
+  --accent: #4f5ef7;
+  --accent2: #7c5ce7;
+  --border: #eaecf2;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
-  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
-/* --- top banner --- */
-.hero {
-  text-align: center;
-  padding: 60px 24px 40px;
-}
-.hero .logo {
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== HERO ===== */
+.hero { text-align: center; padding: 64px 0 48px; }
+.hero .mark {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 72px; height: 72px;
-  background: linear-gradient(135deg, #6366f1, #a78bfa);
-  border-radius: 20px;
-  font-size: 36px;
-  color: #fff;
-  margin-bottom: 18px;
-  box-shadow: 0 12px 30px rgba(99,102,241,0.25);
-}
-.hero h1 {
-  font-size: 32px;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: -0.5px;
-}
-.hero .tagline {
-  font-size: 15px;
-  color: #64748b;
-  margin-top: 6px;
-  line-height: 1.6;
-}
-.hero .badge-row {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px;
-}
-.hero .badge {
-  background: rgba(99,102,241,0.08);
-  color: #6366f1;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 20px;
-}
-
-/* --- tool grid --- */
-.tools {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 24px 60px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 20px;
-}
-
-.tool-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 32px 28px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
-  border: 1px solid rgba(0,0,0,0.06);
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-.tool-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 4px;
-  background: linear-gradient(90deg, #e5e7eb, #e5e7eb);
-  transition: background 0.25s;
-}
-.tool-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
-}
-.tool-card:hover::before { background: linear-gradient(90deg, #6366f1, #a78bfa, #f472b6); }
-
-.tool-card:nth-child(1):hover::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
-.tool-card:nth-child(2):hover::before { background: linear-gradient(90deg, #10b981, #34d399); }
-.tool-card:nth-child(3):hover::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.tool-card:nth-child(4):hover::before { background: linear-gradient(90deg, #ef4444, #f87171); }
-
-.tool-card .icon {
-  font-size: 42px;
-  margin-bottom: 14px;
-}
-.tool-card h2 {
-  font-size: 19px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 6px;
-}
-.tool-card .desc {
-  font-size: 14px;
-  color: #64748b;
-  line-height: 1.65;
-  flex: 1;
-}
-.tool-card .tag-row {
-  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px;
-}
-.tool-card .tag {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  color: #475569;
-}
-.tool-card .arrow {
-  position: absolute;
-  top: 28px; right: 28px;
-  font-size: 18px; color: #cbd5e1;
-  transition: all 0.25s;
-}
-.tool-card:hover .arrow { color: #6366f1; transform: translateX(4px); }
-
-/* --- about me --- */
-.about-me {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0 24px 40px;
-}
-.about-me-header {
-  text-align: center;
-  margin-bottom: 18px;
-}
-.about-me-header span {
-  font-size: 12px;
-  font-weight: 600;
-  color: #94a3b8;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  position: relative;
-  display: inline-block;
-  padding: 0 32px;
-}
-.about-me-header span::before,
-.about-me-header span::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 24px;
-  height: 1px;
-  background: #d1d5db;
-}
-.about-me-header span::before { left: 0; }
-.about-me-header span::after { right: 0; }
-
-.about-card {
-  background: #fff;
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
   border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.02);
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  color: #fff; font-size: 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 28px rgba(79,94,247,0.22);
 }
-.about-card .qr-img {
-  display: block;
-  width: 80px;
-  min-width: 80px;
-  border-radius: 8px;
-  border: 1px solid #f1f5f9;
+.hero h1 { font-size: 30px; font-weight: 750; letter-spacing: -0.5px; color: #111827; }
+.hero .sub { font-size: 15px; color: var(--text2); margin-top: 8px; max-width: 440px; margin-left: auto; margin-right: auto; }
+.hero .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.hero .badges span {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  background: rgba(79,94,247,0.07);
+  padding: 4px 12px; border-radius: 20px;
 }
-.about-card .meta { flex: 1; min-width: 0; }
-.about-card .meta .row1 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
-.about-card .meta .row1 .nick { font-size: 18px; font-weight: 700; color: #0f172a; }
-.about-card .meta .row1 .school { font-size: 13px; color: #6366f1; font-weight: 600; }
-.about-card .meta .row2 { font-size: 13px; color: #64748b; margin-bottom: 2px; }
-.about-card .meta .row3 { font-size: 13px; color: #94a3b8; line-height: 1.6; }
-.about-card .meta .wechat-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  margin-top: 8px;
-  padding: 5px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #475569;
-  cursor: pointer;
+
+/* ===== TOOLS ===== */
+.tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 16px; padding-bottom: 56px; }
+
+.tool {
+  background: var(--card); border-radius: var(--radius);
+  padding: 26px 28px 24px;
+  border: 1px solid var(--border);
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.tool:hover { border-color: #c7cdff; box-shadow: 0 6px 24px rgba(0,0,0,0.05); transform: translateY(-2px); }
+.tool .icon { font-size: 34px; margin-bottom: 10px; }
+.tool h3 { font-size: 16px; font-weight: 650; color: #111827; margin-bottom: 4px; }
+.tool p { font-size: 13.5px; color: var(--text2); line-height: 1.6; flex: 1; }
+.tool .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+.tool .tags span {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  background: #f3f4f8; padding: 3px 9px; border-radius: 5px;
+}
+
+/* ===== ABOUT ===== */
+.about-wrap { padding-bottom: 48px; }
+.about { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+.about-inner { display: flex; align-items: center; gap: 24px; padding: 22px 28px; }
+.about-inner img { display: block; width: 72px; min-width: 72px; border-radius: 8px; border: 1px solid #f2f2f7; }
+.about-info { flex: 1; min-width: 0; }
+.about-info .ai-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.about-info .ai-name { font-size: 17px; font-weight: 680; color: #111827; }
+.about-info .ai-org { font-size: 13px; color: var(--accent); font-weight: 600; }
+.about-info .ai-desc { font-size: 13.5px; color: var(--text2); margin-bottom: 10px; }
+.about-info .ai-ct {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 12.5px; color: var(--text2);
+  cursor: pointer; user-select: none;
   transition: all 0.15s;
-  user-select: none;
 }
-.about-card .meta .wechat-tag:hover {
-  border-color: #6366f1;
-  background: #f5f3ff;
+.about-info .ai-ct:hover { border-color: var(--accent); background: #f8f7ff; }
+.about-info .ai-ct .ai-ct-id { font-weight: 620; color: var(--accent); }
+.about-info .ai-ct .ai-ct-btn {
+  font-size: 11px; font-weight: 620;
+  padding: 3px 10px; border-radius: 5px;
+  background: var(--accent); color: #fff;
+  margin-left: 4px; transition: background 0.15s;
 }
-.about-card .meta .wechat-tag .wt-icon { font-size: 14px; flex-shrink: 0; }
-.about-card .meta .wechat-tag .wt-id { font-weight: 600; color: #6366f1; }
-.about-card .meta .wechat-tag .wt-copy {
-  margin-left: auto;
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 4px;
-  background: #6366f1;
-  color: #fff;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.about-card .meta .wechat-tag .wt-copy.copied { background: #10b981; }
+.about-info .ai-ct .ai-ct-btn.copied { background: #10b981; }
 
-/* --- responsive --- */
-@media (max-width: 740px) {
-  .tools { grid-template-columns: 1fr; padding: 0 16px 40px; }
-  .tool-card { padding: 24px 20px; }
-  .hero { padding: 40px 16px 28px; }
-  .hero h1 { font-size: 26px; }
-}
+footer { text-align: center; padding-bottom: 36px; font-size: 12px; color: var(--text3); }
 
-@media (max-width: 500px) {
-  .about-me { padding: 0 16px 32px; }
-  .about-card { flex-direction: column; text-align: center; gap: 14px; padding: 20px; }
-  .about-card .qr-img { width: 100px; min-width: 100px; }
-  .about-card .meta .row1 { justify-content: center; flex-wrap: wrap; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 540px) {
+  .tools { grid-template-columns: 1fr; }
+  .wrap { padding: 0 16px; }
+  .hero { padding: 48px 0 32px; }
+  .hero h1 { font-size: 25px; }
+  .tool { padding: 22px 20px; }
+  .about-inner { flex-direction: column; text-align: center; gap: 16px; padding: 22px 20px; }
+  .about-inner img { width: 88px; min-width: 88px; }
+  .about-info .ai-top { justify-content: center; }
 }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<section class="hero">
-  <div class="logo">⚛️</div>
-  <h1>PhyMaster 科研工具箱</h1>
-  <p class="tagline">一组面向材料科学 & 半导体研究的小工具<br>上传数据即可计算，无需安装任何软件</p>
-  <div class="badge-row">
-    <span class="badge">半导体</span>
-    <span class="badge">吸光度</span>
-    <span class="badge">扩散模型</span>
-    <span class="badge">带隙计算</span>
-  </div>
-</section>
-
-<section class="tools">
-
-  <a class="tool-card" href="bandgap-calculator.html">
-    <span class="arrow">→</span>
-    <div class="icon">🔬</div>
-    <h2>半导体带隙计算器</h2>
-    <p class="desc">Tauc Plot 方法自动拟合带隙能量。支持手动输入、文件上传或示例数据，输入波长与透光率即可得到 Eg 值。</p>
-    <div class="tag-row">
-      <span class="tag">Tauc Plot</span>
-      <span class="tag">直接/间接带隙</span>
-      <span class="tag">自动拟合</span>
+  <section class="hero">
+    <div class="mark">⚛️</div>
+    <h1>PhyMaster 科研工具箱</h1>
+    <p class="sub">面向材料科学与半导体研究的小工具集。上传数据即可计算，无需安装软件。</p>
+    <div class="badges">
+      <span>半导体</span><span>吸光度</span><span>扩散模型</span><span>带隙计算</span>
     </div>
-  </a>
+  </section>
 
-  <a class="tool-card" href="absorbance-calculator.html">
-    <span class="arrow">→</span>
-    <div class="icon">🧪</div>
-    <h2>吸光度性能计算工具</h2>
-    <p class="desc">多样品吸光度对比分析。支持分批上传光谱数据，自动基准校正，实时生成图表——适合批量样品筛选。</p>
-    <div class="tag-row">
-      <span class="tag">多样品</span>
-      <span class="tag">自动基准</span>
-      <span class="tag">Chart.js</span>
-    </div>
-  </a>
+  <section class="tools">
+    <a class="tool" href="bandgap-calculator.html">
+      <div class="icon">🔬</div>
+      <h3>半导体带隙计算器</h3>
+      <p>Tauc Plot 方法自动拟合带隙能量。支持手动输入、文件上传或示例数据，输入波长与透光率即可得到 Eg 值。</p>
+      <div class="tags"><span>Tauc Plot</span><span>直接/间接带隙</span><span>自动拟合</span></div>
+    </a>
+    <a class="tool" href="absorbance-calculator.html">
+      <div class="icon">🧪</div>
+      <h3>吸光度性能计算工具</h3>
+      <p>多样品吸光度对比分析。支持分批上传光谱数据，自动基准校正，实时生成图表，适合批量样品筛选。</p>
+      <div class="tags"><span>多样品</span><span>自动基准</span><span>Chart.js</span></div>
+    </a>
+    <a class="tool" href="Mo-diffusion.html">
+      <div class="icon">⚡</div>
+      <h3>梯度 Mo 掺杂 BiVO₄ 扩散拟合</h3>
+      <p>输入 Mo 掺杂浓度分布数据，LM 算法拟合 Fick 第二定律，计算扩散系数并预测退火后的内建电场。</p>
+      <div class="tags"><span>Fick 第二定律</span><span>LM 拟合</span><span>内建电场</span></div>
+    </a>
+    <a class="tool" href="Predicting graduation.html">
+      <div class="icon">🎓</div>
+      <h3>研究生延毕预测系统</h3>
+      <p>基于科学算法的延毕风险评估，覆盖科研进展、导师关系、精神状态、外部因素四维分析。仅供娱乐。</p>
+      <div class="tags"><span>娱乐</span><span>压力释放</span><span>问卷互动</span></div>
+    </a>
+  </section>
 
-  <a class="tool-card" href="Mo-diffusion.html">
-    <span class="arrow">→</span>
-    <div class="icon">⚡</div>
-    <h2>梯度Mo掺杂 BiVO₄ 扩散拟合</h2>
-    <p class="desc">输入 Mo 掺杂浓度分布数据，LM 算法拟合 Fick 第二定律，计算扩散系数并预测退火后的内建电场。</p>
-    <div class="tag-row">
-      <span class="tag">Fick 第二定律</span>
-      <span class="tag">LM 拟合</span>
-      <span class="tag">内建电场</span>
-    </div>
-  </a>
-
-  <a class="tool-card" href="Predicting graduation.html">
-    <span class="arrow">→</span>
-    <div class="icon">🎓</div>
-    <h2>研究生延毕预测系统</h2>
-    <p class="desc">基于"科学"算法的延毕风险评估——科研进展、导师玄学、精神状态、外部因素四维分析。仅供娱乐。</p>
-    <div class="tag-row">
-      <span class="tag">娱乐</span>
-      <span class="tag">压力释放</span>
-      <span class="tag">问卷互动</span>
-    </div>
-  </a>
-
-</section>
-
-<section class="about-me">
-  <div class="about-me-header"><span>关于作者</span></div>
-  <div class="about-card">
-    <img class="qr-img" src="authercode.jpg" alt="微信二维码">
-    <div class="meta">
-      <div class="row1">
-        <span class="nick">屈小原</span>
-        <span class="school">河南大学 · 物理学硕士在读</span>
-      </div>
-      <div class="row3">以实践诠释 AI 价值，用智能点亮日常点滴。</div>
-      <div class="wechat-tag" onclick="copyWechat(event)">
-        <span class="wt-icon">💬</span>
-        <span>微信 </span><span class="wt-id">siouuyuann</span>
-        <span class="wt-copy" id="copyBtn">复制</span>
+  <section class="about-wrap">
+    <div class="about">
+      <div class="about-inner">
+        <img src="authercode.jpg" alt="微信二维码">
+        <div class="about-info">
+          <div class="ai-top">
+            <span class="ai-name">屈小原</span>
+            <span class="ai-org">河南大学 · 物理学硕士在读</span>
+          </div>
+          <div class="ai-desc">以实践诠释 AI 价值，用智能点亮日常点滴。</div>
+          <div class="ai-ct" onclick="copyWechat(event)">
+            💬 微信 <span class="ai-ct-id">siouuyuann</span>
+            <span class="ai-ct-btn" id="copyBtn">复制</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>
-  PhyMaster · 作者 屈小原 · 所有计算均在浏览器本地完成，数据不会上传
-</footer>
+  <footer>PhyMaster · 作者 屈小原 · 所有计算均在浏览器本地完成</footer>
+
+</div>
 
 <script>
 function copyWechat(e) {
   e.stopPropagation();
-  const btn = document.getElementById('copyBtn');
-  const text = 'siouuyuann';
+  var t = 'siouuyuann', b = document.getElementById('copyBtn');
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      btn.textContent = '已复制 ✓';
-      btn.classList.add('copied');
-      setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
-    }).catch(function() { fallbackCopy(text, btn); });
-  } else {
-    fallbackCopy(text, btn);
-  }
+    navigator.clipboard.writeText(t).then(function(){ showOk(b); }).catch(function(){ fallback(t, b); });
+  } else { fallback(t, b); }
 }
-function fallbackCopy(text, btn) {
+function fallback(t, b) {
   var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed'; ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.select();
-  try { docum
+  ta.value = t; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); showOk(b); } catch(e) { b.textContent = '失败'; }
+  document.body.removeChild(ta);
+}
+function showOk(b) {
+  b.textContent = '已复制 ✓'; b.classList.add('copied');
+  setTimeout(function(){ b.textContent = '复制'; b.classList.remove('copied'); }, 2000);
+}
+</script>
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
