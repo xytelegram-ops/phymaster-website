@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absorbance Performance Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root { color-scheme: light; --accent: #4f6ef7; --accent2: #7c5ce7; --bg: #f2f3f7; --card: #fff; --text: #2d3436; --muted: #6b7280; --border: #e5e7eb; --red: #ef4444; --green: #10b981; --radius: 10px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px 40px; }
+
+header { background: linear-gradient(135deg, #4f6ef7 0%, #7c5ce7 50%, #a78bfa 100%); margin-bottom: 28px; padding: 32px 0 28px; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
+@media (min-width: 1240px) { header { margin-left: calc((100vw - 1200px) / -2); margin-right: calc((100vw - 1200px) / -2); padding-left: calc((100vw - 1200px) / 2); padding-right: calc((100vw - 1200px) / 2); } }
+header h1 { font-size: 1.55rem; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+header p { color: rgba(255,255,255,0.82); font-size: 0.88rem; margin-top: 4px; }
+
+.step-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.72rem; font-weight: 700; margin-right: 8px; flex-shrink: 0; }
+
+.card { background: var(--card); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.card h2 { font-size: 1.05rem; font-weight: 600; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; }
+.card h3 { font-size: 0.9rem; font-weight: 600; color: #334155; margin-bottom: 8px; }
+
+.sample-selector { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+.sample-selector label { font-size: 0.82rem; font-weight: 600; color: #475569; white-space: nowrap; }
+.sample-selector select { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.85rem; background: #fff; min-width: 140px; }
+.sample-selector select:focus { outline: none; border-color: var(--accent); }
+
+.upload-zone { border: 2px dashed #cbd5e1; border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafbfc; }
+.upload-zone:hover { border-color: var(--accent); background: #f0f3ff; }
+.upload-zone p { color: var(--muted); margin: 3px 0; font-size: 0.86rem; }
+.upload-zone .uz-highlight { font-weight: 600; color: var(--accent); }
+input[type="file"] { display: none; }
+
+.sample-group { margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.sample-group-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #f8fafc; cursor: pointer; user-select: none; transition: background 0.12s; }
+.sample-group-header:hover { background: #f1f5f9; }
+.sample-group-header .sg-arrow { font-size: 0.7rem; color: #94a3b8; transition: transform 0.15s; width: 14px; text-align: center; }
+.sample-group-header .sg-name { font-weight: 600; font-size: 0.88rem; color: #334155; }
+.sample-group-header .sg-badge { font-size: 0.72rem; color: #94a3b8; }
+.sample-group-header .sg-ref { font-size: 0.7rem; color: var(--accent); margin-left: 4px; }
+.sample-group-files { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 6px; }
+
+.file-item { background: #fff; border: 1px solid #edf0f5; border-radius: 7px; padding: 9px 12px; transition: border-color 0.12s; }
+.file-item:hover { border-color: #d1d5db; }
+.file-item .fi-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+.file-item .fi-name { flex: 1; min-width: 140px; font-size: 0.85rem; font-weight: 500; color: #334155; }
+.file-item .fi-meta { font-size: 0.7rem; color: #94a3b8; font-weight: 400; }
+.file-item .ref-badge { background: var(--accent); color: #fff; font-size: 0.63rem; padding: 2px 6px; border-radius: 9px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.fi-status { font-size: 0.66rem; padding: 2px 7px; border-radius: 9px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.fi-status.ok { background: #d1fae5; color: #065f46; }
+.fi-status.err { background: #fee2e2; color: #991b1b; }
+.fi-status.loading { background: #fef3c7; color: #92400e; }
+.file-item .fi-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.file-item label { font-size: 0.73rem; color: var(--muted); white-space: nowrap; }
+.file-item input[type="number"] { width: 64px; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 0.82rem; text-align: center; background: #fff; }
+.file-item input[type="number"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(79,110,247,0.1); }
+.file-item .fi-unit { font-size: 0.72rem; color: #94a3b8; }
+.time-preset { display: inline-block; font-size: 0.66rem; padding: 2px 6px; border-radius: 4px; background: #eef0f6; color: #64748b; cursor: pointer; user-select: none; transition: all 0.12s; font-weight: 500; border: 1px solid transparent; }
+.time-preset:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.fi-remove { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.78rem; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; margin-left: auto; transition: all 0.12s; }
+.fi-remove:hover { color: var(--red); background: #fef2f2; }
+
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.setting-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
+.setting-group input, .setting-group select { width: 100%; padding: 9px 11px; border: 1px solid #d1d5db; border-radius: 7px; font-size: 0.88rem; background: #fff; transition: border-color 0.15s; }
+.setting-group input:focus, .setting-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(79,110,247,0.1); }
+.divider { border-top: 1px solid var(--border); margin: 4px 0 0; grid-column: 1 / -1; }
+.setting-hint { font-size: 0.78rem; color: #94a3b8; grid-column: 1 / -1; display: flex; align-items: center; gap: 4px; }
+.auto-hint { display: inline-block; font-size: 0.74rem; color: var(--accent); cursor: pointer; margin-left: 4px; text-decoration: underline; font-weight: 500; }
+.auto-hint:hover { color: #3b5de7; }
+
+.result-summary { background: linear-gradient(135deg, #f0f4ff, #f5f3ff); border: 1px solid #dde3f3; border-radius: var(--radius); padding: 18px 22px; margin-bottom: 16px; font-size: 0.87rem; line-height: 1.8; }
+.samples-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.sample-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 500; border: 1.5px solid; }
+.sample-chip .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.tabs { display: flex; gap: 0; margin-bottom: 12px; border-bottom: 2px solid var(--border); }
+.tab-btn { padding: 8px 18px; font-size: 0.84rem; font-weight: 500; border: none; background: none; color: #94a3b8; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab-btn:hover { color: #475569; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+th, td { padding: 9px 11px; text-align: center; border-bottom: 1px solid var(--border); }
+th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafbfd; }
+tr.ref-row td { background: #eef2ff !important; font-weight: 600; color: #1e40af; }
+
+.spectra-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; margin-top: 8px; }
+.spectra-card { background: #fafbfc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.spectra-card h4 { font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+.spectra-card .chart-wrap { position: relative; height: 280px; }
+.spectra-card .chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+.main-chart-wrap { position: relative; height: 420px; }
+.main-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.ctrl-mini { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; font-size: 0.74rem; color: #64748b; }
+.ctrl-mini input[type="number"] { width: 58px; padding: 3px 5px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.74rem; text-align: center; background: #fff; }
+.ctrl-mini input[type="text"] { width: 100px; padding: 3px 5px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.74rem; background: #fff; }
+.ctrl-mini input:focus { outline: none; border-color: var(--accent); }
+.ctrl-mini select { padding: 3px 5px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.74rem; background: #fff; }
+.ctrl-mini .sep { color: #cbd5e1; margin: 0 1px; }
+.ctrl-mini input[type="checkbox"] { accent-color: var(--accent); width: auto; }
+
+.btn { padding: 9px 20px; border-radius: 7px; font-size: 0.88rem; cursor: pointer; border: none; font-weight: 600; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #3b5de7; box-shadow: 0 2px 8px rgba(79,110,247,0.3); }
+.btn-outline { background: #fff; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn-outline:hover { background: #f0f3ff; }
+.btn-ghost { background: transparent; color: #64748b; border: 1px solid #e5e7eb; }
+.btn-ghost:hover { background: #f1f5f9; color: #475569; }
+.btn-xs { padding: 4px 10px; font-size: 0.72rem; border-radius: 5px; background: #f1f5f9; color: #475569; border: 1px solid #e5e7eb; cursor: pointer; white-space: nowrap; font-weight: 500; }
+.btn-xs:hover { background: #e2e8f0; }
+.btn-xs.accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.footer-hint { text-align: center; color: #cbd5e1; font-size: 0.76rem; margin-top: 24px; }
+
+.btn-help { padding: 8px 18px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); color: #fff; font-weight: 500; transition: all 0.15s; white-space: nowrap; backdrop-filter: blur(4px); }
+.btn-help:hover { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.75); }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: #fff; border-radius: 14px; max-width: 680px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal-box h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; padding: 22px 26px 16px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; }
+.modal-box h2 .modal-close { background: none; border: none; font-size: 1.3rem; color: #94a3b8; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.modal-box h2 .modal-close:hover { background: #f1f5f9; color: #475569; }
+.modal-body { padding: 20px 26px 28px; font-size: 0.88rem; line-height: 1.8; color: #475569; }
+.modal-body h3 { font-size: 0.95rem; font-weight: 600; color: #334155; margin: 16px 0 6px; }
+.modal-body h3:first-child { margin-top: 0; }
+.modal-body ul { padding-left: 20px; margin: 6px 0; }
+.modal-body li { margin-bottom: 4px; }
+.modal-body .tip { background: #f0f4ff; border-left: 3px solid #4f6ef7; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 10px 0; font-size: 0.84rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1>吸光度性能计算工具</h1>
+        <p>多样品支持 · 分批上传 · 自动基准 · 实时更新</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:4px;padding:8px 16px;background:rgba(255,255,255,0.18);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">← 返回主页</a>
+        <button class="btn-help" id="btnHelp">📖 使用方法</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Upload -->
+  <div class="card">
+    <h2><span class="step-badge">1</span> 上传光谱数据文件</h2>
+    <div class="sample-selector">
+      <label>当前样品：</label>
+      <select id="activeSample"></select>
+      <button class="btn-xs accent" id="btnNewSample">+ 新建</button>
+      <button class="btn-xs" id="btnRenameSample">重命名</button>
+      <button class="btn-xs" id="btnDeleteSample" style="color:#ef4444;">删除</button>
+    </div>
+    <div class="upload-zone" id="uploadZone">
+      <p>📁 点击选择文件 或拖拽 txt 文件到此处（可多选）</p>
+      <p>将添加到 <span class="uz-highlight" id="uzSampleName">—</span></p>
+    </div>
+    <input type="file" id="fileInput" multiple accept=".txt,.csv,.dat">
+    <div id="sampleGroups"></div>
+  </div>
+
+  <!-- Settings -->
+  <div class="card">
+    <h2><span class="step-badge">2</span> 参数设置</h2>
+    <div class="settings-grid">
+      <div class="setting-group">
+        <label>波长范围下限 (nm) <span class="auto-hint" id="autoRangeHint" style="display:none;">自动填充</span></label>
+        <input type="number" id="wlMin" step="any" placeholder="如 400">
+      </div>
+      <div class="setting-group">
+        <label>波长范围上限 (nm)</label>
+        <input type="number" id="wlMax" step="any" placeholder="如 500">
+      </div>
+      <div class="setting-group">
+        <label>常数（分母）</label>
+        <input type="number" id="constant" step="any" placeholder="如 0.01">
+      </div>
+      <div class="setting-hint">📌 每个样品自动取<strong style="margin:0 3px;">时间最小</strong>的文件为基准（通常 t = 0）</div>
+      <div class="divider"></div>
+      <div class="setting-group">
+        <label>⏱ 反应时间单位</label>
+        <input type="text" id="timeUnit" placeholder="min / h / s …">
+      </div>
+      <div class="setting-group">
+        <label>📊 性能单位</label>
+        <input type="text" id="perfUnit" placeholder="U/mg …">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" id="btnCalculate">开始计算</button>
+      <button class="btn btn-ghost btn-sm" id="btnClear">清除全部</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="resultCard" style="display:none;">
+    <h2><span class="step-badge">3</span> 计算结果</h2>
+    <div class="result-summary" id="resultSummary"></div>
+    <div class="samples-bar" id="samplesBar"></div>
+
+    <!-- Performance chart -->
+    <div class="section-header">
+      <h3>📊 性能汇总对比</h3>
+      <div class="ctrl-mini">
+        X:<input type="number" id="pXMin" step="any" placeholder="自动"><span class="sep">–</span><input type="number" id="pXMax" step="any" placeholder="自动">
+        Y:<input type="number" id="pYMin" step="any" placeholder="自动"><span class="sep">–</span><input type="number" id="pYMax" step="any" placeholder="自动">
+        X标签:<input type="text" id="pXLabel" value="Time" style="width:70px;">
+        Y标签:<input type="text" id="pYLabel" value="Performance" style="width:80px;">
+        线宽:<input type="number" id="pLineW" step="0.5" min="0.5" max="10" value="2" style="width:44px;">
+        <select id="pChartType"><option value="line">折线图</option><option value="bar">柱状图</option><option value="scatter">散点图</option></select>
+        <label><input type="checkbox" id="pGrid" checked>网格</label>
+        <button class="btn-xs" id="btnExportP">⬇ PNG</button>
+      </div>
+    </div>
+    <div class="main-chart-wrap"><canvas id="chartPerformance"></canvas></div>
+
+    <!-- Spectra charts -->
+    <h3 style="margin-top:20px;">📈 各样品光谱</h3>
+    <div class="ctrl-mini" style="margin-bottom:10px;">
+      线宽:<input type="number" id="sLineW" step="0.5" min="0.5" max="10" value="1.2" style="width:44px;">
+      <select id="sLineType"><option value="line">折线</option><option value="smooth">平滑曲线</option></select>
+      X标签:<input type="text" id="sXLabel" value="Wavelength (nm)" style="width:110px;">
+      Y标签:<input type="text" id="sYLabel" value="Absorbance" style="width:80px;">
+      <label><input type="checkbox" id="sShowRange" checked>波长范围</label>
+      <label><input type="checkbox" id="sGrid" checked>网格</label>
+    </div>
+    <div class="spectra-grid" id="spectraGrid"></div>
+
+    <!-- Tables -->
+    <h3 style="margin-top:20px;">📋 数据汇总表</h3>
+    <div class="tabs" id="tableTabs"></div>
+    <div id="tablePanels"></div>
+
+    <div class="actions">
+      <button class="btn btn-outline" id="btnExportCSV">📥 导出 CSV</button>
+    </div>
+  </div>
+
+  <p class="footer-hint">所有数据仅在浏览器本地处理，不上传任何服务器</p>
+
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal-box">
+      <h2>📖 使用方法 <button class="modal-close" id="btnModalClose">✕</button></h2>
+      <div class="modal-body">
+        <h3>1. 创建样品并上传文件</h3>
+        <ul>
+          <li>点击「+ 新建」创建样品（如"样品 A"、"样品 B"）</li>
+          <li>在下拉框中选择当前样品，然后上传该样品的 txt 文件</li>
+          <li>每个文件需包含两列：<strong>波长 吸光度</strong>（制表符/空格/逗号分隔）</li>
+          <li>切换到另一个样品，继续上传——各样品文件互不混淆</li>
+        </ul>
+
+        <h3>2. 设置反应时间</h3>
+        <ul>
+          <li>在每个文件的输入框中填写反应时间</li>
+          <li>点击预设按钮快速填入（每个文件的预设值不同，按序号递增）</li>
+          <li><strong>时间最小的文件自动成为该样品的基准</strong>（通常 t = 0）</li>
+        </ul>
+
+        <h3>3. 设置参数</h3>
+        <ul>
+          <li><strong>波长范围</strong>：选择用于计算吸光度最大值的波长区间</li>
+          <li>点击「自动填充」可快速填入所有数据覆盖的波长范围</li>
+          <li><strong>常数</strong>：性能 = Δ吸光度 / 常数，输入你的常数</li>
+          <li><strong>单位</strong>：可选填时间单位和性能单位，会显示在图表和表格中</li>
+        </ul>
+
+        <h3>4. 查看结果</h3>
+        <ul>
+          <li>点击「开始计算」或修改任何参数后自动更新</li>
+          <li><strong>性能汇总图</strong>：所有样品的性能曲线叠加在一张图上</li>
+          <li>支持切换折线图 / 柱状图 / 散点图</li>
+          <li><strong>各样品光谱图</strong>：每个样品独立显示，蓝色区域标注波长范围</li>
+          <li><strong>数据表</strong>：按样品分页，列出每个时间点的最大吸光度和性能值</li>
+        </ul>
+
+        <h3>5. 导出</h3>
+        <ul>
+          <li>每个图表可导出为 PNG 图片</li>
+          <li>取消勾选「网格」后再导出可获得无网格线的干净图片</li>
+          <li>「导出 CSV」下载完整数据表格</li>
+        </ul>
+
+        <div class="tip">💡 <strong>提示：</strong>修改任何参数后图表会自动更新（500ms 防抖），无需手动点击按钮。X/Y 轴标签支持手动输入，默认使用英文以避免图表中文显示问题。时间单位可在参数设置中填写，自动显示在图表坐标轴上。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const SAMPLE_COLORS = ['#4f6ef7','#f97316','#10b981','#8b5cf6','#f59e0b','#ec4899','#06b6d4','#ef4444','#84cc16','#f43f5e'];
+  const SPECTRA_COLORS = ['#4f6ef7','#f97316','#10b981','#8b5cf6','#f59e0b','#ec4899','#06b6d4','#64748b','#ef4444','#334155','#60a5fa','#a78bfa','#fb923c','#34d399','#fbbf24','#f472b6'];
+  const TIME_PRESETS = [[0],[2,5,10,15,20,25,30],[4,10,20,30,40,50,60],[6,15,30,45,60,75,90],[8,20,40,60,80,100,120],[10,25,50,75,100,125,150]];
+
+  let samples = [{ name: '样品 1', expanded: true }];
+  let activeSampleIdx = 0;
+  const filesData = [];
+  let chartPerf = null, spectraCharts = {}, lastCalc = null;
+  let recalcTimer = null, redrawTimer = null;
+
+  // DOM — upload
+  const uploadZone = document.getElementById('uploadZone'), fileInput = document.getElementById('fileInput');
+  const activeSampleEl = document.getElementById('activeSample'), uzSampleName = document.getElementById('uzSampleName');
+  const sampleGroupsEl = document.getElementById('sampleGroups'), autoHint = document.getElementById('autoRangeHint');
+  // DOM — settings
+  const wlMinEl = document.getElementById('wlMin'), wlMaxEl = document.getElementById('wlMax'), constantEl = document.getElementById('constant');
+  const timeUnitEl = document.getElementById('timeUnit'), perfUnitEl = document.getElementById('perfUnit');
+  const btnCalc = document.getElementById('btnCalculate'), btnClear = document.getElementById('btnClear');
+  // DOM — results
+  const resultCard = document.getElementById('resultCard'), resultSummary = document.getElementById('resultSummary');
+  const samplesBar = document.getElementById('samplesBar'), tableTabs = document.getElementById('tableTabs'), tablePanels = document.getElementById('tablePanels');
+  const spectraGrid = document.getElementById('spectraGrid'), btnExportCSV = document.getElementById('btnExportCSV');
+  // Spectra controls
+  const sLineWEl = document.getElementById('sLineW'), sLineTypeEl = document.getElementById('sLineType');
+  const sShowRangeEl = document.getElementById('sShowRange'), sGridEl = document.getElementById('sGrid');
+  const sXLabelEl = document.getElementById('sXLabel'), sYLabelEl = document.getElementById('sYLabel');
+  // Perf controls
+  const pXMinEl = document.getElementById('pXMin'), pXMaxEl = document.getElementById('pXMax');
+  const pYMinEl = document.getElementById('pYMin'), pYMaxEl = document.getElementById('pYMax');
+  const pXLabelEl = document.getElementById('pXLabel'), pYLabelEl = document.getElementById('pYLabel');
+  const pLineWEl = document.getElementById('pLineW'), pChartTypeEl = document.getElementById('pChartType');
+  const pGridEl = document.getElementById('pGrid');
+  const btnExportP = document.getElementById('btnExportP');
+
+  // Persist units
+  const STORE_KEY = 'absorbance_calc_v2';
+  (function() { try { const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s){ if(s.timeUnit)timeUnitEl.value=s.timeUnit; if(s.perfUnit)perfUnitEl.value=s.perfUnit; if(s.sXLabel)sXLabelEl.value=s.sXLabel; if(s.sYLabel)sYLabelEl.value=s.sYLabel; if(s.pXLabel)pXLabelEl.value=s.pXLabel; if(s.pYLabel)pYLabelEl.value=s.pYLabel; }}catch(e){} })();
+  function savePrefs(){ try { localStorage.setItem(STORE_KEY,JSON.stringify({timeUnit:timeUnitEl.value,perfUnit:perfUnitEl.value,sXLabel:sXLabelEl.value,sYLabel:sYLabelEl.value,pXLabel:pXLabelEl.value,pYLabel:pYLabelEl.value})); }catch(e){} }
+  [timeUnitEl,perfUnitEl,sXLabelEl,sYLabelEl,pXLabelEl,pYLabelEl].forEach(el=>el.addEventListener('input',()=>{savePrefs();triggerRedraw();}));
+
+  function getTimeUnit(){ return timeUnitEl.value.trim()||''; }
+  function getPerfUnit(){ return perfUnitEl.value.trim()||''; }
+
+  // ============== Debounce ==============
+  function debounceRecalc(){ clearTimeout(recalcTimer); recalcTimer=setTimeout(doRecalculate,500); }
+  function triggerRedraw(){ clearTimeout(redrawTimer); redrawTimer=setTimeout(doRedraw,150); }
+  function triggerRecalc(){ clearTimeout(recalcTimer); recalcTimer=setTimeout(doRecalculate,500); }
+
+  function doRecalculate(){
+    const calcSamples = getCalcSamples();
+    if(calcSamples.length===0) return;
+    const hasMulti = calcSamples.some(s=>s.files.length>=2);
+    if(!hasMulti) return;
+    const wMin=parseFloat(wlMinEl.value), wMax=parseFloat(wlMaxEl.value);
+    if(isNaN(wMin)||isNaN(wMax)||wMin>=wMax) return;
+    const K=parseFloat(constantEl.value);
+    if(isNaN(K)||K===0) return;
+
+    for(const s of calcSamples){ for(const f of s.files){ let best=-Infinity,bestWl=null; for(const[wl,abs]of f.rawData){ if(wl>=wMin&&wl<=wMax&&abs>best){best=abs;bestWl=wl;} } f.maxAbs=best===-Infinity?null:best; f.maxWl=bestWl; } }
+    for(const s of calcSamples){ s.results=[]; if(s.refFile.maxAbs===null)continue; for(const f of s.files.slice(1)){ if(f.maxAbs===null)continue; s.results.push({file:f,delta:f.maxAbs-s.refFile.maxAbs,performance:(f.maxAbs-s.refFile.maxAbs)/K}); } }
+    lastCalc={samples:calcSamples.filter(s=>s.results.length>0),wMin,wMax,K};
+    if(lastCalc.samples.length===0){resultCard.style.display='none';return;}
+    doRedraw();
+  }
+
+  function doRedraw(){
+    if(!lastCalc){resultCard.style.display='none';return;}
+    resultCard.style.display='block';
+    renderSummary();
+    renderPerfChart();
+    renderSpectraCharts();
+    renderTables();
+  }
+
+  // ============== Parse ==============
+  function parseFileContent(text){
+    const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+    const data=[];
+    for(const line of lines){
+      let parts=null;
+      for(const d of['\t',',',';']){const p=line.split(d);if(p.length>=2){parts=p;break;}}
+      if(!parts)parts=line.split(/\s+/);
+      if(parts.length<2)continue;
+      const wl=parseFloat(parts[0].trim()),abs=parseFloat(parts[1].trim());
+      if(isNaN(wl)||isNaN(abs))continue;
+      data.push([wl,abs]);
+    }
+    data.sort((a,b)=>a[0]-b[0]);
+    return data;
+  }
+
+  function handleFiles(files){
+    const sn=getActiveSampleName();
+    for(const file of files){
+      if(!/\.(txt|csv|dat)$/i.test(file.name))continue;
+      const reader=new FileReader();
+      const entry={id:Date.now()+'_'+Math.random().toString(36).slice(2,8),name:file.name,time:null,sampleName:sn,rawData:[],maxAbs:null,maxWl:null,error:null,status:'loading'};
+      filesData.push(entry); renderAllSampleGroups();
+      reader.onload=function(e){ try{const data=parseFileContent(e.target.result);if(data.length===0)throw new Error('未找到有效数据行');entry.rawData=data;entry.status='ok';entry.error=null;}catch(err){entry.status='err';entry.error=err.message;} renderAllSampleGroups(); triggerRecalc(); };
+      reader.onerror=function(){entry.status='err';entry.error='Read failed';renderAllSampleGroups();};
+      reader.readAsText(file);
+    }
+    fileInput.value=''; renderSampleSelector();
+    if(filesData.some(f=>f.status==='ok'&&f.rawData.length>0))autoHint.style.display='inline';
+  }
+
+  function removeFile(id){ const idx=filesData.findIndex(f=>f.id===id); if(idx>=0)filesData.splice(idx,1); renderAllSampleGroups(); renderSampleSelector(); triggerRecalc(); if(filesData.length===0)autoHint.style.display='none'; }
+  function setFileTime(id,value){ const f=filesData.find(f=>f.id===id); if(f){f.time=value;f.maxAbs=null;f.maxWl=null;} renderAllSampleGroups(); triggerRecalc(); if(filesData.some(f=>f.status==='ok'&&f.rawData.length>0))autoHint.style.display='inline'; }
+  function updateTimeOnFile(id,val){ const f=filesData.find(f=>f.id===id); if(f){f.time=val===''?null:parseFloat(val);f.maxAbs=null;f.maxWl=null;} triggerRecalc(); if(filesData.some(f=>f.status==='ok'&&f.rawData.length>0))autoHint.style.display='inline'; }
+
+  window._removeFile=removeFile; window._updateTime=updateTimeOnFile; window._setTime=setFileTime;
+
+  // ============== Sample management ==============
+  function getActiveSampleName(){ return samples[activeSampleIdx]?samples[activeSampleIdx].name:'样品 1'; }
+  function getSampleFiles(sn){ return filesData.filter(f=>f.sampleName===sn); }
+  function renderSampleSelector(){ activeSampleEl.innerHTML=samples.map((s,i)=>`<option value="${i}"${i===activeSampleIdx?' selected':''}>${s.name} (${getSampleFiles(s.name).length} 个文件)</option>`).join(''); uzSampleName.textContent=getActiveSampleName(); }
+  activeSampleEl.addEventListener('change',()=>{activeSampleIdx=parseInt(activeSampleEl.value);uzSampleName.textContent=getActiveSampleName();renderAllSampleGroups();});
+
+  document.getElementById('btnNewSample').addEventListener('click',()=>{
+    const name=prompt('新样品名称：','样品 '+(samples.length+1));
+    if(!name||!name.trim())return; const t=name.trim();
+    if(samples.some(s=>s.name===t)){alert('名称已存在。');return;}
+    samples.push({name:t,expanded:true}); activeSampleIdx=samples.length-1;
+    renderSampleSelector(); renderAllSampleGroups();
+  });
+  document.getElementById('btnRenameSample').addEventListener('click',()=>{
+    if(samples.length===0)return; const s=samples[activeSampleIdx];
+    const nn=prompt('重命名为：',s.name); if(!nn||!nn.trim()||nn.trim()===s.name)return; const t=nn.trim();
+    if(samples.some(x=>x.name===t)){alert('名称已存在。');return;}
+    const old=s.name; s.name=t;
+    for(const f of filesData){if(f.sampleName===old)f.sampleName=t;}
+    renderSampleSelector(); renderAllSampleGroups(); triggerRecalc();
+  });
+  document.getElementById('btnDeleteSample').addEventListener('click',()=>{
+    if(samples.length<=1){alert('至少保留一个样品。');return;}
+    const s=samples[activeSampleIdx];
+    if(!confirm(`确定删除样品「${s.name}」及其所有文件吗？`))return;
+    for(let i=filesData.length-1;i>=0;i--){if(filesData[i].sampleName===s.name)filesData.splice(i,1);}
+    samples.splice(activeSampleIdx,1); if(activeSampleIdx>=samples.length)activeSampleIdx=samples.length-1;
+    renderSampleSelector(); renderAllSampleGroups(); triggerRecalc();
+    if(filesData.length===0)autoHint.style.display='none';
+  });
+
+  function toggleSampleGroup(idx){samples[idx].expanded=!samples[idx].expanded;renderAllSampleGroups();}
+  window._toggleSample=toggleSampleGroup;
+
+  function renderAllSampleGroups(){
+    const tu=getTimeUnit(),tLabel=tu?` ${tu}`:'';
+    sampleGroupsEl.innerHTML=samples.map((s,si)=>{
+      const sFiles=getSampleFiles(s.name);
+      const ok=sFiles.filter(f=>f.status==='ok'&&f.time!=null&&!isNaN(f.time));
+      let refId=null; if(ok.length>0){ok.sort((a,b)=>a.time-b.time);refId=ok[0].id;}
+      const filesHtml=s.expanded?sFiles.map((f,fi)=>{
+        const sc=f.status==='ok'?'ok':f.status==='err'?'err':'loading';
+        const st=f.status==='ok'?'✓ 已解析':f.status==='err'?'✗ '+(f.error||'错误'):'解析中…';
+        const n=f.rawData?f.rawData.length:0;
+        const wlInfo=n>0?`${f.rawData[0][0]}–${f.rawData[n-1][0]} nm · ${n} 行`:'';
+        const badge=(f.id===refId)?'<span class="ref-badge">基准</span>':'';
+        const presets=TIME_PRESETS[Math.min(fi,TIME_PRESETS.length-1)];
+        const presetBtns=presets.map(v=>`<span class="time-preset" onclick="window._setTime('${f.id}',${v})">${v}</span>`).join('');
+        return `<div class="file-item"><div class="fi-top"><span class="fi-name">📄 ${f.name} ${badge}<span class="fi-meta">${wlInfo}</span></span><span class="fi-status ${sc}">${st}</span><button class="fi-remove" onclick="window._removeFile('${f.id}')">✕</button></div><div class="fi-row"><label>Time</label><input type="number" step="any" placeholder="—" value="${f.time!=null?f.time:''}" oninput="window._updateTime('${f.id}',this.value)"><span class="fi-unit">${tLabel}</span>${presetBtns}</div></div>`;
+      }).join(''):'';
+      const refInfo=refId?(()=>{const rf=sFiles.find(x=>x.id===refId);return rf?` · 基准: t=${rf.time}${tLabel}`:'';})():'';
+      return `<div class="sample-group"><div class="sample-group-header" onclick="window._toggleSample(${si})"><span class="sg-arrow" style="transform:${s.expanded?'rotate(90deg)':'rotate(0deg)'};">▶</span><span class="sg-name">${s.name}</span><span class="sg-badge">${sFiles.length} 个文件</span><span class="sg-ref">${refInfo}</span></div>${s.expanded?`<div class="sample-group-files">${filesHtml||'<span style="font-size:0.8rem;color:#94a3b8;padding:8px;">暂无文件，上传将添加到此样品</span>'}</div>`:''}</div>`;
+    }).join('');
+  }
+
+  // ============== Events ==============
+  uploadZone.addEventListener('click',()=>fileInput.click());
+  uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('dragover');});
+  uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('dragover');if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+  fileInput.addEventListener('change',()=>{if(fileInput.files.length)handleFiles(fileInput.files);});
+
+  autoHint.addEventListener('click',()=>{
+    const ok=filesData.filter(f=>f.status==='ok'&&f.rawData.length>0);
+    if(ok.length===0)return; let gMin=Infinity,gMax=-Infinity;
+    for(const f of ok){if(f.rawData[0][0]<gMin)gMin=f.rawData[0][0];if(f.rawData[f.rawData.length-1][0]>gMax)gMax=f.rawData[f.rawData.length-1][0];}
+    wlMinEl.value=gMin; wlMaxEl.value=gMax; triggerRecalc();
+  });
+
+  // Auto-recalc on param change
+  [wlMinEl,wlMaxEl,constantEl].forEach(el=>el.addEventListener('input',()=>triggerRecalc()));
+  // Auto-redraw on display control change
+  [pXMinEl,pXMaxEl,pYMinEl,pYMaxEl,pLineWEl,pChartTypeEl,pGridEl].forEach(el=>el.addEventListener('input',()=>triggerRedraw()));
+  [pChartTypeEl,pGridEl].forEach(el=>el.addEventListener('change',()=>triggerRedraw()));
+  [sLineWEl,sLineTypeEl,sShowRangeEl,sGridEl].forEach(el=>{el.addEventListener('input',()=>triggerRedraw());el.addEventListener('change',()=>triggerRedraw());});
+
+  btnClear.addEventListener('click',()=>{
+    filesData.length=0; samples=[{name:'样品 1',expanded:true}]; activeSampleIdx=0;
+    renderSampleSelector(); renderAllSampleGroups();
+    wlMinEl.value='';wlMaxEl.value='';constantEl.value='';
+    resultCard.style.display='none';lastCalc=null;
+    if(chartPerf){chartPerf.destroy();chartPerf=null;}
+    for(const c of Object.values(spectraCharts))c.destroy(); spectraCharts={};
+    autoHint.style.display='none'; clearTimeout(recalcTimer); clearTimeout(redrawTimer);
+  });
+
+  btnExportP.addEventListener('click',()=>downloadChart('chartPerformance','performance.png'));
+
+  function downloadChart(canvasId,filename){
+    const c=document.getElementById(canvasId);if(!c)return;
+    const a=document.createElement('a');a.download=filename;a.href=c.toDataURL('image/png');a.click();
+  }
+
+  // ============== Calc helpers ==============
+  function getCalcSamples(){
+    const valid=filesData.filter(f=>f.status==='ok'&&f.time!=null&&!isNaN(f.time));
+    const groups={}; for(const f of valid){const sn=f.sampleName||'Default';if(!groups[sn])groups[sn]=[];groups[sn].push(f);}
+    const result=[]; for(const[name,files]of Object.entries(groups)){files.sort((a,b)=>a.time-b.time);result.push({name,files,refFile:files[0],color:null});}
+    result.forEach((s,i)=>{s.color=SAMPLE_COLORS[i%SAMPLE_COLORS.length];});
+    return result;
+  }
+
+  btnCalc.addEventListener('click',()=>{clearTimeout(recalcTimer);doRecalculate();});
+
+  // ============== Render ==============
+  function renderSummary(){
+    if(!lastCalc)return;
+    const{ samples:cs,wMin,wMax,K }=lastCalc;
+    const tu=getTimeUnit(),pu=getPerfUnit();
+    const totalPts=cs.reduce((sum,s)=>sum+s.results.length,0);
+    resultSummary.innerHTML=`<strong>样品数：</strong>${cs.length} &nbsp;|&nbsp; 波长范围 ${wMin}–${wMax} nm &nbsp;|&nbsp; 常数 ${K} &nbsp;|&nbsp; 对比时间点 ${totalPts} 个`;
+    samplesBar.innerHTML=cs.map(s=>`<span class="sample-chip" style="border-color:${s.color};color:${s.color};"><span class="swatch" style="background:${s.color};"></span>${s.name}（基准 t=${s.refFile.time}${tu?' '+tu:''}，${s.results.length} 个点）</span>`).join('');
+  }
+
+  function renderPerfChart(){
+    if(!lastCalc)return;
+    const{ samples:cs }=lastCalc;
+    const tu=getTimeUnit(),pu=getPerfUnit();
+    const xMin=pXMinEl.value!==''?parseFloat(pXMinEl.value):NaN, xMax=pXMaxEl.value!==''?parseFloat(pXMaxEl.value):NaN;
+    const yMin=pYMinEl.value!==''?parseFloat(pYMinEl.value):NaN, yMax=pYMaxEl.value!==''?parseFloat(pYMaxEl.value):NaN;
+    const lineW=parseFloat(pLineWEl.value)||2, chartType=pChartTypeEl.value;
+    const showGrid=pGridEl.checked;
+    const xLabel=pXLabelEl.value||'Time', yLabel=pYLabelEl.value||'Performance';
+    if(tu&&xLabel==='Time'){} // keep as-is
+    if(pu&&yLabel==='Performance'){}
+
+    if(chartPerf)chartPerf.destroy();
+    const ctx=document.getElementById('chartPerformance').getContext('2d');
+    const gridColor=showGrid?'#f1f5f9':'transparent';
+
+    if(chartType==='bar'){
+      const timeSet=new Set(),dataMap={};
+      for(const s of cs){dataMap[s.name]={};dataMap[s.name][s.refFile.time]=0;for(const r of s.results){dataMap[s.name][r.file.time]=r.performance;timeSet.add(r.file.time);}timeSet.add(s.refFile.time);}
+      const times=[...timeSet].sort((a,b)=>a-b);
+      chartPerf=new Chart(ctx,{type:'bar',data:{labels:times.map(t=>`t=${t}`),datasets:cs.map(s=>({label:s.name,data:times.map(t=>dataMap[s.name][t]??null),backgroundColor:s.color+'cc',borderColor:s.color,borderWidth:1,borderRadius:3}))},
+        options:{responsive:true,maintainAspectRatio:false,
+          scales:{x:{title:{display:true,text:xLabel},grid:{color:gridColor}},y:{title:{display:true,text:yLabel},min:isNaN(yMin)?undefined:yMin,max:isNaN(yMax)?undefined:yMax,grid:{color:gridColor}}},
+          plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw!=null?ctx.raw.toFixed(6):'—'}${pu?' '+pu:''}`}}}}});
+    }else{
+      const showLine=chartType==='line';
+      chartPerf=new Chart(ctx,{type:'scatter',data:{datasets:cs.map(s=>{const pts=[{x:s.refFile.time,y:0}];for(const r of s.results)pts.push({x:r.file.time,y:r.performance});pts.sort((a,b)=>a.x-b.x);return{label:s.name,data:pts,borderColor:s.color,backgroundColor:s.color,pointRadius:chartType==='scatter'?5:4,pointHoverRadius:7,showLine,tension:0,borderWidth:lineW,fill:false};})},
+        options:{responsive:true,maintainAspectRatio:false,parsing:false,
+          scales:{x:{type:'linear',title:{display:true,text:xLabel},min:isNaN(xMin)?undefined:xMin,max:isNaN(xMax)?undefined:xMax,grid:{color:gridColor}},y:{title:{display:true,text:yLabel},min:isNaN(yMin)?undefined:yMin,max:isNaN(yMax)?undefined:yMax,grid:{color:gridColor}}},
+          plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: t=${ctx.raw.x}${tu?' '+tu:''}, perf=${ctx.raw.y.toFixed(6)}${pu?' '+pu:''}`}}}}});
+    }
+  }
+
+  function renderSpectraCharts(){
+    if(!lastCalc)return;
+    const{ samples:cs,wMin,wMax }=lastCalc;
+    const tu=getTimeUnit(), lineW=parseFloat(sLineWEl.value)||1.2;
+    const tension=sLineTypeEl.value==='smooth'?0.35:0, showRange=sShowRangeEl.checked;
+    const showGrid=sGridEl.checked, gridColor=showGrid?'#f1f5f9':'transparent';
+    const xLabel=sXLabelEl.value||'Wavelength (nm)', yLabel=sYLabelEl.value||'Absorbance';
+    const MAX_PTS=2500;
+
+    for(const c of Object.values(spectraCharts))c.destroy(); spectraCharts={};
+    spectraGrid.innerHTML=cs.map((s,si)=>{const cid=`sc_${si}`;return`<div class="spectra-card"><h4><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${s.color};margin-right:6px;"></span>${s.name}</h4><div class="chart-wrap"><canvas id="${cid}"></canvas></div></div>`;}).join('');
+
+    cs.forEach((s,si)=>{
+      const cid=`sc_${si}`,canvas=document.getElementById(cid);if(!canvas)return;
+      const ctx=canvas.getContext('2d');
+      const allFiles=[s.refFile,...s.results.map(r=>r.file)];
+      const datasets=allFiles.map((f,i)=>{const raw=f.rawData,step=raw.length<=MAX_PTS?1:Math.ceil(raw.length/MAX_PTS);const pts=[];for(let j=0;j<raw.length;j+=step)pts.push({x:raw[j][0],y:raw[j][1]});if(raw.length>1&&(raw.length-1)%step!==0)pts.push({x:raw[raw.length-1][0],y:raw[raw.length-1][1]});const isRef=(f.id===s.refFile.id);return{label:`t=${f.time}${tu?' '+tu:''}${isRef?' ◀ref':''}`,data:pts,borderColor:isRef?'#f97316':SPECTRA_COLORS[i%SPECTRA_COLORS.length],backgroundColor:'transparent',borderWidth:isRef?lineW*2.2:lineW,pointRadius:0,tension};});
+      const chart=new Chart(ctx,{type:'line',data:{datasets},
+        options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,
+          scales:{x:{type:'linear',title:{display:true,text:xLabel},ticks:{maxTicksLimit:10},grid:{color:gridColor}},y:{title:{display:true,text:yLabel},grid:{color:gridColor}}},
+          plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9},usePointStyle:true,padding:12}}}},
+        plugins:showRange?[{id:'wlOverlay',afterDraw(chart){const xS=chart.scales.x,yS=chart.scales.y;const x1=xS.getPixelForValue(wMin),x2=xS.getPixelForValue(wMax);if(isNaN(x1)||isNaN(x2))return;chart.ctx.save();chart.ctx.fillStyle='rgba(79,110,247,0.08)';chart.ctx.fillRect(x1,yS.top,x2-x1,yS.bottom-yS.top);chart.ctx.strokeStyle='rgba(79,110,247,0.4)';chart.ctx.lineWidth=1;chart.ctx.setLineDash([5,4]);chart.ctx.beginPath();chart.ctx.moveTo(x1,yS.top);chart.ctx.lineTo(x1,yS.bottom);chart.ctx.stroke();chart.ctx.beginPath();chart.ctx.moveTo(x2,yS.top);chart.ctx.lineTo(x2,yS.bottom);chart.ctx.stroke();chart.ctx.setLineDash([]);chart.ctx.fillStyle='#4f6ef7';chart.ctx.font='bold 9px sans-serif';chart.ctx.fillText(`${wMin}–${wMax}`,x1+4,yS.top+13);chart.ctx.restore();}}]:[]});
+      spectraCharts[cid]=chart;
+    });
+  }
+
+  function renderTables(){
+    if(!lastCalc)return;
+    const{ samples:cs }=lastCalc; const tu=getTimeUnit(),pu=getPerfUnit();
+    const tHdr=tu?`反应时间 (${tu})`:'反应时间', pHdr=pu?`性能 (${pu})`:'性能';
+    tableTabs.innerHTML=cs.map((s,i)=>`<button class="tab-btn${i===0?' active':''}" onclick="window._switchTab(${i})">${s.name}</button>`).join('');
+    tablePanels.innerHTML=cs.map((s,si)=>{const rows=[{label:`t=${s.refFile.time}`,name:s.refFile.name,wl:s.refFile.maxWl,maxAbs:s.refFile.maxAbs,perf:'—（基准）',isRef:true}];for(const r of s.results)rows.push({label:`t=${r.file.time}`,name:r.file.name,wl:r.file.maxWl,maxAbs:r.file.maxAbs,perf:r.performance.toFixed(6),delta:r.delta.toFixed(6),isRef:false});return`<div class="table-wrap" id="panel_${si}" style="${si>0?'display:none;':''}"><table><thead><tr><th>${tHdr}</th><th>文件名</th><th>波长 (nm)</th><th>最大吸光度</th><th>Δ 吸光度</th><th>${pHdr}</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r.isRef?'ref-row':''}"><td>${r.label}</td><td>${r.name}</td><td>${r.wl!=null?r.wl.toFixed(1):'—'}</td><td>${r.maxAbs.toFixed(6)}</td><td>${r.isRef?'—':r.delta}</td><td>${r.perf}</td></tr>`).join('')}</tbody></table></div>`;}).join('');
+  }
+  window._switchTab=function(idx){document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));document.querySelectorAll('[id^="panel_"]').forEach((p,i)=>p.style.display=i===idx?'':'none');};
+
+  // ============== Export CSV ==============
+  btnExportCSV.addEventListener('click',()=>{
+    if(!lastCalc){alert('没有可导出的数据。');return;}
+    const{ samples:cs,wMin,wMax,K }=lastCalc; const tu=getTimeUnit(),pu=getPerfUnit();
+    const tH=tu?`Time(${tu})`:'Time', pH=pu?`Perf(${pu})`:'Performance';
+    let csv='﻿Wavelength range,'+wMin+'–'+wMax+' nm\nConstant,'+K+'\n';
+    if(tu)csv+='Time unit,'+tu+'\n'; if(pu)csv+='Perf unit,'+pu+'\n';
+    for(const s of cs){csv+='\nSample,'+s.name+'\nRef time,'+s.refFile.time+(tu?' '+tu:'')+'\n'+tH+',File,Wavelength(nm),MaxAbs,DeltaAbs,'+pH+'\n';
+      csv+=s.refFile.time+',"'+s.refFile.name+'",'+(s.refFile.maxWl!=null?s.refFile.maxWl.toFixed(1):'')+','+(s.refFile.maxAbs!=null?s.refFile.maxAbs.toFixed(6):'')+',—,—\n';
+      for(const r of s.results)csv+=r.file.time+',"'+r.file.name+'",'+(r.file.maxWl!=null?r.file.maxWl.toFixed(1):'')+','+(r.file.maxAbs!=null?r.file.maxAbs.toFixed(6):'')+','+r.delta.toFixed(6)+','+r.performance.toFixed(6)+'\n';}
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='absorbance_results.csv';a.click();URL.revokeObjectURL(url);
+  });
+
+  // Init
+  renderSampleSelector(); renderAllSampleGroups(); uzSampleName.textContent=getActiveSampleName();
+
+  // Help modal
+  const helpModal=document.getElementById('helpModal');
+  document.getElementById('btnHelp').addEventListener('click',()=>helpModal.classList.add('show'));
+  document.getElementById('btnModalClose').addEventListener('click',()=>helpModal.classList.remove('show'));
+  helpModal.addEventListener('click',(e)=>{if(e.target===helpModal)helpModal.classList.remove('show');});
+})();
+</script>
+</body>
+</html>
