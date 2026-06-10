@@ -49,6 +49,20 @@ textarea:focus{outline:none;border-color:#60a5fa}
 .btn-export:hover{border-color:var(--pri);color:var(--pri)}
 .hint{font-size:12px;color:var(--txt2);line-height:1.8;margin-bottom:10px}
 .code{font-family:Consolas,Monaco,monospace;background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px}
+.btn-help{padding:8px 18px;border-radius:20px;font-size:13px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-weight:500;transition:all 0.15s;white-space:nowrap;backdrop-filter:blur(4px)}
+.btn-help:hover{background:rgba(255,255,255,0.28);border-color:rgba(255,255,255,0.75)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-box h2{font-size:1.2rem;font-weight:700;color:#1e293b;padding:22px 26px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
+.modal-box h2 .modal-close{background:none;border:none;font-size:1.3rem;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:6px}
+.modal-box h2 .modal-close:hover{background:#f1f5f9;color:#475569}
+.modal-body{padding:20px 26px 28px;font-size:0.88rem;line-height:1.8;color:#475569}
+.modal-body h3{font-size:0.95rem;font-weight:600;color:#334155;margin:16px 0 6px}
+.modal-body h3:first-child{margin-top:0}
+.modal-body ul{padding-left:20px;margin:6px 0}
+.modal-body li{margin-bottom:4px}
+.modal-body .tip{background:#f0f4ff;border-left:3px solid #2563eb;padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0;font-size:0.84rem}
 </style>
 </head>
 <body>
@@ -58,7 +72,10 @@ textarea:focus{outline:none;border-color:#60a5fa}
 <h1>梯度Mo掺杂BiVO₄ — 扩散拟合与预测 (v2)</h1>
 <p>退火温度 450 °C · LM拟合 · 输入实验数据 → 拟合扩散系数 → 预测内建电场</p>
 </div>
-<a href="index.html" style="display:inline-flex;align-items:center;gap:4px;padding:8px 16px;background:rgba(255,255,255,0.18);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;transition:all 0.15s;margin-top:2px;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">← 返回主页</a>
+<div style="display:flex;align-items:center;gap:10px;">
+<button class="btn-help" id="btnHelp">📖 使用方法</button>
+<a href="index.html" style="display:inline-flex;align-items:center;gap:4px;padding:8px 16px;background:rgba(255,255,255,0.18);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">← 返回主页</a>
+</div>
 </div>
 </div>
 <div class="container">
@@ -185,6 +202,41 @@ textarea:focus{outline:none;border-color:#60a5fa}
 </div>
 </div>
 
+<div class="modal-overlay" id="helpModal">
+  <div class="modal-box">
+    <h2>📖 使用方法 <button class="modal-close" id="btnModalClose">✕</button></h2>
+    <div class="modal-body">
+      <h3>① 数据输入与拟合</h3>
+      <ul>
+        <li>在「实验数据输入」文本框中输入数据，格式为：<code>#time=小时</code> 标记退火时长，每行 <code>深度(制表符)Mo浓度(%)</code></li>
+        <li>不同时间的数据组用空行分隔（参见默认示例）</li>
+        <li>点击「拟合扩散参数」按钮，使用 Levenberg-Marquardt 算法进行非线性拟合</li>
+        <li>拟合结果将显示 D（扩散系数）、σ（扩散深度）、C₁、C₂、x₀ 和 R²</li>
+        <li>拟合曲线图可直观对比实验数据与模型预测，支持导出 CSV</li>
+      </ul>
+
+      <h3>② 预测与可视化</h3>
+      <ul>
+        <li>完成拟合后切换到「预测与可视化」标签页</li>
+        <li>通过滑块调整底层/顶层 Mo 浓度、总膜厚、界面位置和退火时间</li>
+        <li>点击「生成预测」查看 Mo 浓度深度分布曲线、内建电场 E_bi 和能带弯曲图</li>
+        <li>所有滑块实时联动更新，修改参数后图表自动刷新</li>
+        <li>每个图表支持导出 CSV 数据文件</li>
+      </ul>
+
+      <h3>拟合模型说明</h3>
+      <ul>
+        <li><strong>Fick 第二定律：</strong>∂C/∂t = D · ∂²C/∂x²，描述扩散过程</li>
+        <li><strong>误差函数浓度分布：</strong>C(x,t) = (C₁+C₂)/2 + (C₁−C₂)/2 · erf[(x₀−x)/σ]，σ = √(2Dt)</li>
+        <li><strong>内建电场：</strong>E_bi(x) = −(kT/q)·(1/C)·dC/dx</li>
+        <li><strong>退火温度：</strong>固定 450°C（723 K），适用于 BiVO₄ 薄膜梯度掺杂体系</li>
+      </ul>
+
+      <div class="tip">💡 <strong>提示：</strong>拟合采用 Levenberg-Marquardt 算法（最多 800 次迭代），对初值不敏感。如果数据质量较好，R² 通常可达 0.99 以上。界面位置默认为膜厚的 50%。</div>
+    </div>
+  </div>
+</div>
+
 <script>
 var kB_eV=8.617e-5,T_ANNEAL=450+273.15;
 function erfApprox(x){var a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+p*x);return s*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
@@ -283,6 +335,14 @@ function loadDemo(){document.getElementById('dataInput').value="#time=1\n0\t5.0\
 
 var sliderIds=['pC1','pC2','pThick','pIface','pTime'];
 for(var si=0;si<sliderIds.length;si++){(function(id){document.getElementById(id).addEventListener('input',function(){if(fitState)runPredict();var v=document.getElementById(id).value;document.getElementById(id+'v').textContent=(id==='pC1'||id==='pC2')?parseFloat(v).toFixed(1)+'%':id==='pThick'?v+'nm':id==='pIface'?v+'%':parseFloat(v).toFixed(1)+'h';});})(sliderIds[si]);}
+
+// Help modal
+(function(){
+  var hm=document.getElementById('helpModal');
+  document.getElementById('btnHelp').addEventListener('click',function(){hm.classList.add('show');});
+  document.getElementById('btnModalClose').addEventListener('click',function(){hm.classList.remove('show');});
+  hm.addEventListener('click',function(e){if(e.target===hm)hm.classList.remove('show');});
+})();
 </script>
 </body>
 </html>
