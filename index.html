@@ -180,6 +180,7 @@ body {
   min-width: 80px;
   border-radius: 8px;
   border: 1px solid #f1f5f9;
+  flex-shrink: 0;
 }
 .about-card .meta { flex: 1; min-width: 0; }
 .about-card .meta .row1 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
@@ -198,6 +199,7 @@ body {
   cursor: pointer;
   transition: all 0.15s;
   user-select: none;
+  background: #fff;
 }
 .about-card .meta .wechat-tag:hover {
   border-color: #6366f1;
@@ -206,7 +208,6 @@ body {
 .about-card .meta .wechat-tag .wt-icon { font-size: 14px; flex-shrink: 0; }
 .about-card .meta .wechat-tag .wt-id { font-weight: 600; color: #6366f1; }
 .about-card .meta .wechat-tag .wt-copy {
-  margin-left: auto;
   font-size: 11px;
   padding: 3px 10px;
   border-radius: 4px;
@@ -214,6 +215,7 @@ body {
   color: #fff;
   font-weight: 600;
   transition: background 0.15s;
+  margin-left: 2px;
 }
 .about-card .meta .wechat-tag .wt-copy.copied { background: #10b981; }
 
@@ -319,7 +321,7 @@ body {
 </section>
 
 <footer>
-  PhyMaster · 作者 屈小原 · 所有计算均在浏览器本地完成，数据不会上传
+  PhyMaster · 作者 屈小原 · 所有计算均在浏览器本地完成，数据不会上传 · <span style="color:#6366f1">扫码或复制微信号联系作者</span>
 </footer>
 
 <script>
@@ -340,7 +342,4 @@ function copyWechat(e) {
 function fallbackCopy(text, btn) {
   var ta = document.createElement('textarea');
   ta.value = text;
-  ta.style.position = 'fixed'; ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.select();
-  try { docum
+  ta.st
