@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mo掺杂BiVO4 v2 - 含退火修正</title>
+<title>Mo掺杂BiVO4 — 扩散拟合与预测</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root{--pri:#2563eb;--sec:#059669;--acc:#d946ef;--bg:#f8fafc;--card:#fff;--txt:#1e293b;--txt2:#64748b;--bdr:#e2e8f0;--shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -31,6 +31,7 @@ textarea:focus{outline:none;border-color:#60a5fa}
 .fit-status.show{display:block}
 .fit-ok{background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.2);color:#065f46}
 .fit-err{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);color:#991b1b}
+.fit-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#92400e}
 .result-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
 .r-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:14px;text-align:center;box-shadow:var(--shadow)}
 .r-val{font-size:22px;font-weight:700;color:var(--pri)}.r-lbl{font-size:11px;color:var(--txt2);margin-top:2px}
@@ -53,7 +54,7 @@ textarea:focus{outline:none;border-color:#60a5fa}
 .btn-help:hover{background:rgba(255,255,255,0.28);border-color:rgba(255,255,255,0.75)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-box{background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
 .modal-box h2{font-size:1.2rem;font-weight:700;color:#1e293b;padding:22px 26px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
 .modal-box h2 .modal-close{background:none;border:none;font-size:1.3rem;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:6px}
 .modal-box h2 .modal-close:hover{background:#f1f5f9;color:#475569}
@@ -69,7 +70,7 @@ textarea:focus{outline:none;border-color:#60a5fa}
 <div class="header">
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
 <div>
-<h1>梯度Mo掺杂BiVO₄ — 扩散拟合与预测 (v2)</h1>
+<h1>梯度Mo掺杂BiVO₄ — 扩散拟合与预测</h1>
 <p>退火温度 450 °C · LM拟合 · 输入实验数据 → 拟合扩散系数 → 预测内建电场</p>
 </div>
 <div style="display:flex;align-items:center;gap:10px;">
@@ -89,45 +90,68 @@ textarea:focus{outline:none;border-color:#60a5fa}
 <div class="panel">
 <div class="panel-hd">📋 实验数据输入</div>
 <div class="panel-bd">
-<div class="hint">格式：<span class="code">#time=小时</span> 标记退火时长，每行 深度(制表符)Mo浓度(%)，空行分隔</div>
-<textarea id="dataInput">#time=1
-0	5.0
-20	4.8
-40	4.1
-60	3.2
-80	2.3
-100	1.6
-120	1.3
-140	1.1
-160	1.0
-180	1.0
-200	1.0
+<div class="hint">格式：<span class="code">#time=小时</span> 标记退火时长（<span class="code">#time=0</span> 表示不退火初始态），每行 <span class="code">深度(制表符)Mo浓度(%)</span>，空行分隔不同时间组</div>
+<textarea id="dataInput">#time=0
+0	1.0
+20	1.0
+40	1.0
+60	1.0
+80	1.0
+90	1.1
+95	1.5
+100	3.0
+105	4.5
+110	4.9
+120	5.0
+140	5.0
+160	5.0
+180	5.0
+200	5.0
+
+#time=1
+0	1.0
+20	1.0
+40	1.0
+60	1.0
+80	1.3
+90	1.9
+100	3.0
+110	4.1
+120	4.7
+140	5.0
+160	5.0
+180	5.0
+200	5.0
 
 #time=2
-0	5.0
-20	4.9
-40	4.4
-60	3.7
-80	2.9
-100	2.1
-120	1.7
-140	1.3
-160	1.2
-180	1.1
-200	1.1
+0	1.0
+20	1.0
+40	1.0
+60	1.1
+80	1.6
+90	2.2
+100	3.0
+110	3.8
+120	4.4
+140	4.9
+160	5.0
+180	5.0
+200	5.0
 
 #time=4
-0	5.0
-20	4.9
-40	4.7
-60	4.2
-80	3.6
-100	2.8
-120	2.3
-140	1.8
-160	1.5
-180	1.3
-200	1.2</textarea>
+0	1.0
+20	1.0
+40	1.1
+60	1.3
+80	1.9
+90	2.4
+100	3.0
+110	3.6
+120	4.1
+140	4.7
+160	5.0
+180	5.0
+200	5.0</textarea>
 <div class="btn-row">
 <button class="btn btn-pri" onclick="runFit()">拟合扩散参数</button>
 <button class="btn btn-sec" onclick="loadDemo()">重置示例</button>
@@ -150,7 +174,7 @@ textarea:focus{outline:none;border-color:#60a5fa}
 <span class="eq">∂C/∂t = D · ∂²C/∂x²</span>
 <p><strong>② 误差函数浓度分布</strong></p>
 <span class="eq">C(x,t) = (C₁+C₂)/2 + (C₁−C₂)/2 · erf[(x₀−x)/σ]</span>
-<p class="eq-note">σ = √(2Dt)，C₁=底层(高掺杂)，C₂=顶层(低掺杂)，x从表面向衬底增加</p>
+<p class="eq-note">σ = √(2Dt)，C₁=近表面侧浓度，C₂=近衬底侧浓度，x从表面向衬底增加（示例中C₁&lt;C₂，浓度随深度增大）</p>
 <p><strong>③ 内建电场</strong></p>
 <span class="eq">E_bi(x) = −(kT/q)·(1/C)·dC/dx</span>
 <p><strong>④ Levenberg-Marquardt 拟合</strong></p>
@@ -168,8 +192,8 @@ textarea:focus{outline:none;border-color:#60a5fa}
 <div class="panel-bd">
 <div id="predNotice" class="hint" style="color:var(--acc)">⚠ 请先在①中完成拟合</div>
 <div id="predControls" style="display:none">
-<div class="pred-row"><label>底层Mo浓度</label><input type="range" id="pC1" min="0" max="10" step="0.1" value="1"><span class="badge" id="pC1v">1.0%</span></div>
-<div class="pred-row"><label>顶层Mo浓度</label><input type="range" id="pC2" min="0" max="10" step="0.1" value="8"><span class="badge" id="pC2v">5.0%</span></div>
+<div class="pred-row"><label>近表面Mo浓度</label><input type="range" id="pC1" min="0" max="10" step="0.1" value="1"><span class="badge" id="pC1v">1.0%</span></div>
+<div class="pred-row"><label>近衬底Mo浓度</label><input type="range" id="pC2" min="0" max="10" step="0.1" value="5"><span class="badge" id="pC2v">5.0%</span></div>
 <div class="pred-row"><label>总膜厚 (nm)</label><input type="range" id="pThick" min="50" max="500" step="10" value="200"><span class="badge" id="pThickv">200nm</span></div>
 <div class="pred-row"><label>界面位置 (%)</label><input type="range" id="pIface" min="10" max="90" step="1" value="50"><span class="badge" id="pIfacev">50%</span></div>
 <div class="pred-row"><label>退火时间 (h)</label><input type="range" id="pTime" min="0" max="12" step="0.5" value="2"><span class="badge" id="pTimev">2.0h</span></div>
@@ -209,6 +233,7 @@ textarea:focus{outline:none;border-color:#60a5fa}
       <h3>① 数据输入与拟合</h3>
       <ul>
         <li>在「实验数据输入」文本框中输入数据，格式为：<code>#time=小时</code> 标记退火时长，每行 <code>深度(制表符)Mo浓度(%)</code></li>
+        <li><strong>不退火初始态：</strong>使用 <code>#time=0</code> 标记未经退火的初始浓度分布（沉积态），程序会将其作为扩散前的初始剖面</li>
         <li>不同时间的数据组用空行分隔（参见默认示例）</li>
         <li>点击「拟合扩散参数」按钮，使用 Levenberg-Marquardt 算法进行非线性拟合</li>
         <li>拟合结果将显示 D（扩散系数）、σ（扩散深度）、C₁、C₂、x₀ 和 R²</li>
@@ -218,9 +243,10 @@ textarea:focus{outline:none;border-color:#60a5fa}
       <h3>② 预测与可视化</h3>
       <ul>
         <li>完成拟合后切换到「预测与可视化」标签页</li>
-        <li>通过滑块调整底层/顶层 Mo 浓度、总膜厚、界面位置和退火时间</li>
+        <li>通过滑块调整近表面/近衬底 Mo 浓度、总膜厚、界面位置和退火时间</li>
         <li>点击「生成预测」查看 Mo 浓度深度分布曲线、内建电场 E_bi 和能带弯曲图</li>
-        <li>所有滑块实时联动更新，修改参数后图表自动刷新</li>
+        <li>拖动滑块时会自动更新预测结果（有 200ms 防抖，避免卡顿）</li>
+        <li>如果输入了 <code>#time=0</code> 初始数据，"退火前"曲线将使用实测初始剖面，否则使用理想阶跃函数</li>
         <li>每个图表支持导出 CSV 数据文件</li>
       </ul>
 
@@ -229,10 +255,11 @@ textarea:focus{outline:none;border-color:#60a5fa}
         <li><strong>Fick 第二定律：</strong>∂C/∂t = D · ∂²C/∂x²，描述扩散过程</li>
         <li><strong>误差函数浓度分布：</strong>C(x,t) = (C₁+C₂)/2 + (C₁−C₂)/2 · erf[(x₀−x)/σ]，σ = √(2Dt)</li>
         <li><strong>内建电场：</strong>E_bi(x) = −(kT/q)·(1/C)·dC/dx</li>
+        <li><strong>能带弯曲：</strong>由浓度梯度导致静电势偏移，导带和价带同步弯曲，带隙保持 2.4 eV 恒定</li>
         <li><strong>退火温度：</strong>固定 450°C（723 K），适用于 BiVO₄ 薄膜梯度掺杂体系</li>
       </ul>
 
-      <div class="tip">💡 <strong>提示：</strong>拟合采用 Levenberg-Marquardt 算法（最多 800 次迭代），对初值不敏感。如果数据质量较好，R² 通常可达 0.99 以上。界面位置默认为膜厚的 50%。</div>
+      <div class="tip">💡 <strong>提示：</strong>拟合采用 Levenberg-Marquardt 算法（最多 800 次迭代），对初值不敏感。建议输入 <code>#time=0</code> 的初始态数据以获得更准确的初始浓度剖面。如果数据质量较好，R² 通常可达 0.99 以上。</div>
     </div>
   </div>
 </div>
@@ -242,99 +269,322 @@ var kB_eV=8.617e-5,T_ANNEAL=450+273.15;
 function erfApprox(x){var a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+p*x);return s*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
 function concModel(x,C1,C2,x0,s){return(C1+C2)/2+(C1-C2)/2*erfApprox((x0-x)/Math.max(s,.1));}
 
-function parseData(text){var ds=[];var ls=text.trim().split('\n');var ct=null,cd=[];
-for(var i=0;i<ls.length;i++){var l=ls[i].trim();if(!l){if(cd.length&&ct!==null){ds.push({time:ct,points:cd});cd=[];ct=null;}continue;}
-var m=l.match(/#.*time\s*=\s*([\d.]+)/i);if(m){if(cd.length&&ct!==null){ds.push({time:ct,points:cd});cd=[];}ct=parseFloat(m[1]);continue;}
-if(l.charAt(0)==='#')continue;var p=l.split(/[\t,;]+/).map(function(s){return parseFloat(s.trim());}).filter(function(v){return !isNaN(v);});if(p.length>=2)cd.push({x:p[0],c:p[1]});}
-if(cd.length&&ct!==null)ds.push({time:ct,points:cd});return ds;}
+function parseData(text){
+  var ds=[], initialData=null, warnings=[];
+  var ls=text.trim().split('\n');
+  var ct=null, cd=[];
+  for(var i=0;i<ls.length;i++){
+    var l=ls[i].trim();
+    if(!l){
+      if(cd.length&&ct!==null){
+        var entry={time:ct,points:cd};
+        if(ct===0) initialData=entry; else ds.push(entry);
+        cd=[];ct=null;
+      }
+      continue;
+    }
+    var m=l.match(/#.*time\s*=\s*([\d.]+)/i);
+    if(m){
+      if(cd.length&&ct!==null){
+        var entry={time:ct,points:cd};
+        if(ct===0) initialData=entry; else ds.push(entry);
+        cd=[];
+      }
+      ct=parseFloat(m[1]);continue;
+    }
+    // Also support #initial as shorthand for #time=0
+    if(l.match(/^#\s*initial/i)){
+      if(cd.length&&ct!==null){
+        var entry={time:ct,points:cd};
+        if(ct===0) initialData=entry; else ds.push(entry);
+        cd=[];
+      }
+      ct=0;continue;
+    }
+    if(l.charAt(0)==='#')continue;
+    var p=l.split(/[\t,;]+/).map(function(s){return parseFloat(s.trim());}).filter(function(v){return !isNaN(v);});
+    if(p.length>=2)cd.push({x:p[0],c:p[1]});
+  }
+  if(cd.length&&ct!==null){
+    var entry={time:ct,points:cd};
+    if(ct===0) initialData=entry; else ds.push(entry);
+  }
+  // Validation
+  var allPoints=[];
+  for(var i=0;i<ds.length;i++)allPoints=allPoints.concat(ds[i].points);
+  if(initialData)allPoints=allPoints.concat(initialData.points);
+  for(var i=0;i<allPoints.length;i++){
+    if(allPoints[i].c<0||allPoints[i].c>100)warnings.push('浓度值 '+allPoints[i].c+'% 超出合理范围 0-100%');
+    if(allPoints[i].x<0)warnings.push('深度值 '+allPoints[i].x+' 为负数');
+  }
+  return {datasets:ds,initialData:initialData,warnings:warnings};
+}
 
-function fitSingleLM(points,timeH){var t_s=timeH*3600;
-var cMin=Infinity,cMax=-Infinity,xMin=Infinity,xMax=-Infinity;
-for(var i=0;i<points.length;i++){var p=points[i];if(p.c<cMin)cMin=p.c;if(p.c>cMax)cMax=p.c;if(p.x<xMin)xMin=p.x;if(p.x>xMax)xMax=p.x;}
-var C1=cMax,C2=cMin,x0=(xMin+xMax)/2,logD=Math.log(.05),lambda=.001;
-for(var iter=0;iter<800;iter++){var D=Math.exp(logD),sigma=Math.sqrt(2*D*t_s),sigSafe=Math.max(sigma,.1);
-var res=[],J=[],sse=0;
-for(var i=0;i<points.length;i++){var p=points[i];var z=(x0-p.x)/sigSafe,ev=erfApprox(z),Chat=(C1+C2)/2+(C1-C2)/2*ev,ri=Chat-p.c;res.push(ri);sse+=ri*ri;
-var dC=C1-C2,derf=(2/Math.sqrt(Math.PI))*Math.exp(-z*z);J.push([.5+.5*ev,.5-.5*ev,dC/2*derf/sigSafe,-dC/2*derf*(x0-p.x)/(sigma*sigma)*(sigma/2)]);}
-var n=4,m=points.length,JtJ=[],Jtr=[];for(var j=0;j<n;j++){JtJ[j]=[];for(var k=0;k<n;k++)JtJ[j][k]=0;Jtr[j]=0;}
-for(var i=0;i<m;i++)for(var j=0;j<n;j++){Jtr[j]+=J[i][j]*res[i];for(var k=0;k<n;k++)JtJ[j][k]+=J[i][j]*J[i][k];}
-for(var j=0;j<n;j++)JtJ[j][j]*=(1+lambda);
-var aug=[];for(var i=0;i<n;i++){aug[i]=[];for(var j=0;j<n;j++)aug[i][j]=JtJ[i][j];aug[i][n]=-Jtr[i];}
-for(var c=0;c<n;c++){var mx=c;for(var r=c+1;r<n;r++)if(Math.abs(aug[r][c])>Math.abs(aug[mx][c]))mx=r;var tmp=aug[c];aug[c]=aug[mx];aug[mx]=tmp;var pv=aug[c][c];if(Math.abs(pv)<1e-20)continue;for(var j=c;j<=n;j++)aug[c][j]/=pv;for(var r=0;r<n;r++){if(r===c)continue;var f=aug[r][c];for(var j=c;j<=n;j++)aug[r][j]-=f*aug[c][j];}}
-var delta=[];for(var i=0;i<n;i++)delta[i]=aug[i][n];
-var nC1=C1+delta[0],nC2=C2+delta[1],nx0=x0+delta[2],nlogD=logD+delta[3];
-var nD=Math.exp(nlogD),nSig=Math.sqrt(2*nD*t_s),nsse=0;
-for(var i=0;i<points.length;i++){var p=points[i];nsse+=Math.pow(concModel(p.x,nC1,nC2,nx0,nSig)-p.c,2);}
-if(nsse<sse){C1=nC1;C2=nC2;x0=nx0;logD=nlogD;lambda/=10;if(Math.abs(nsse-sse)<1e-12)break;}else lambda*=10;}
-var Df=Math.exp(logD),sf=Math.sqrt(2*Df*t_s),ssTot=0,ssRes=0,mean=0;
-for(var i=0;i<points.length;i++)mean+=points[i].c;mean/=points.length;
-for(var i=0;i<points.length;i++){ssRes+=Math.pow(points[i].c-concModel(points[i].x,C1,C2,x0,sf),2);ssTot+=Math.pow(points[i].c-mean,2);}
-return{C1:C1,C2:C2,x0:x0,D:Df,sigma:sf,r2:ssTot>0?1-ssRes/ssTot:0,timeH:timeH};}
+function fitSingleLM(points,timeH){
+  // Use minimum effective time for t=0 to avoid singularity
+  var effTime=Math.max(timeH,0.01);
+  var t_s=effTime*3600;
+  var cMin=Infinity,cMax=-Infinity,xMin=Infinity,xMax=-Infinity;
+  for(var i=0;i<points.length;i++){var p=points[i];if(p.c<cMin)cMin=p.c;if(p.c>cMax)cMax=p.c;if(p.x<xMin)xMin=p.x;if(p.x>xMax)xMax=p.x;}
+  var C1=cMax,C2=cMin,x0=(xMin+xMax)/2,logD=Math.log(.05),lambda=.001;
+  for(var iter=0;iter<800;iter++){var D=Math.exp(logD),sigma=Math.sqrt(2*D*t_s),sigSafe=Math.max(sigma,.1);
+  var res=[],J=[],sse=0;
+  for(var i=0;i<points.length;i++){var p=points[i];var z=(x0-p.x)/sigSafe,ev=erfApprox(z),Chat=(C1+C2)/2+(C1-C2)/2*ev,ri=Chat-p.c;res.push(ri);sse+=ri*ri;
+  var dC=C1-C2,derf=(2/Math.sqrt(Math.PI))*Math.exp(-z*z);J.push([.5+.5*ev,.5-.5*ev,dC/2*derf/sigSafe,-dC/2*derf*(x0-p.x)/(sigma*sigma)*(sigma/2)]);}
+  var n=4,m=points.length,JtJ=[],Jtr=[];for(var j=0;j<n;j++){JtJ[j]=[];for(var k=0;k<n;k++)JtJ[j][k]=0;Jtr[j]=0;}
+  for(var i=0;i<m;i++)for(var j=0;j<n;j++){Jtr[j]+=J[i][j]*res[i];for(var k=0;k<n;k++)JtJ[j][k]+=J[i][j]*J[i][k];}
+  for(var j=0;j<n;j++)JtJ[j][j]*=(1+lambda);
+  var aug=[];for(var i=0;i<n;i++){aug[i]=[];for(var j=0;j<n;j++)aug[i][j]=JtJ[i][j];aug[i][n]=-Jtr[i];}
+  for(var c=0;c<n;c++){var mx=c;for(var r=c+1;r<n;r++)if(Math.abs(aug[r][c])>Math.abs(aug[mx][c]))mx=r;var tmp=aug[c];aug[c]=aug[mx];aug[mx]=tmp;var pv=aug[c][c];if(Math.abs(pv)<1e-20)continue;for(var j=c;j<=n;j++)aug[c][j]/=pv;for(var r=0;r<n;r++){if(r===c)continue;var f=aug[r][c];for(var j=c;j<=n;j++)aug[r][j]-=f*aug[c][j];}}
+  var delta=[];for(var i=0;i<n;i++)delta[i]=aug[i][n];
+  var nC1=C1+delta[0],nC2=C2+delta[1],nx0=x0+delta[2],nlogD=logD+delta[3];
+  var nD=Math.exp(nlogD),nSig=Math.sqrt(2*nD*t_s),nsse=0;
+  for(var i=0;i<points.length;i++){var p=points[i];nsse+=Math.pow(concModel(p.x,nC1,nC2,nx0,nSig)-p.c,2);}
+  if(nsse<sse){C1=nC1;C2=nC2;x0=nx0;logD=nlogD;lambda/=10;if(Math.abs(nsse-sse)<1e-12)break;}else lambda*=10;}
+  var Df=Math.exp(logD),sf=Math.sqrt(2*Df*t_s),ssTot=0,ssRes=0,mean=0;
+  for(var i=0;i<points.length;i++)mean+=points[i].c;mean/=points.length;
+  for(var i=0;i<points.length;i++){ssRes+=Math.pow(points[i].c-concModel(points[i].x,C1,C2,x0,sf),2);ssTot+=Math.pow(points[i].c-mean,2);}
+  return{C1:C1,C2:C2,x0:x0,D:Df,sigma:sf,r2:ssTot>0?1-ssRes/ssTot:0,timeH:timeH,isInitial:timeH===0};
+}
 
 var fitState=null;
-function runFit(){var stEl=document.getElementById('fitStatus'),rsEl=document.getElementById('fitResults');
-var datasets=parseData(document.getElementById('dataInput').value);
-if(!datasets.length){stEl.className='fit-status show fit-err';stEl.innerHTML='❌ 未检测到有效数据';return;}
-var fits=[];for(var i=0;i<datasets.length;i++){var ds=datasets[i];if(ds.points.length<3){stEl.className='fit-status show fit-err';stEl.innerHTML='❌ '+ds.time+'h 数据不足';return;}var f=fitSingleLM(ds.points,ds.time);f.originalPoints=ds.points;fits.push(f);}
-var Dgeo=Math.exp(fits.reduce(function(s,f){return s+Math.log(f.D);},0)/fits.length);
-fitState={datasets:datasets,fits:fits,D_geo_avg:Dgeo};
-stEl.className='fit-status show fit-ok';stEl.innerHTML='✅ 拟合完成 ('+datasets.length+'组, LM算法)';
-var h='<div class="result-cards"><div class="r-card"><div class="r-val">'+(Dgeo*1e14).toExponential(2)+'</div><div class="r-lbl">D (nm²/s)</div></div>';
-h+='<div class="r-card"><div class="r-val" style="color:var(--sec)">'+fits.map(function(f){return f.r2.toFixed(4);}).join(' / ')+'</div><div class="r-lbl">R²</div></div></div>';
-h+='<table class="fit-table"><thead><tr><th>t</th><th>C₁</th><th>C₂</th><th>x₀</th><th>D</th><th>σ</th><th>R²</th></tr></thead><tbody>';
-for(var i=0;i<fits.length;i++){var f=fits[i];h+='<tr><td><b>'+f.timeH+'h</b></td><td>'+f.C1.toFixed(2)+'%</td><td>'+f.C2.toFixed(2)+'%</td><td>'+f.x0.toFixed(1)+'nm</td><td>'+(f.D*1e14).toExponential(3)+'</td><td>'+f.sigma.toFixed(1)+'</td><td>'+f.r2.toFixed(4)+'</td></tr>';}
-h+='</tbody></table>';rsEl.innerHTML=h;drawFitChart(fits);
-document.getElementById('predNotice').style.display='none';document.getElementById('predControls').style.display='block';}
+function runFit(){
+  var stEl=document.getElementById('fitStatus'),rsEl=document.getElementById('fitResults');
+  var parsed=parseData(document.getElementById('dataInput').value);
+  var datasets=parsed.datasets, initialData=parsed.initialData;
+  // Show validation warnings
+  var msgs=[];
+  if(parsed.warnings.length){
+    for(var w=0;w<parsed.warnings.length;w++)msgs.push('⚠ '+parsed.warnings[w]);
+  }
+  if(!datasets.length&&!initialData){
+    stEl.className='fit-status show fit-err';stEl.innerHTML='❌ 未检测到有效数据';
+    return;
+  }
+  // Fit initial data if present
+  var initialFit=null;
+  if(initialData&&initialData.points.length>=3){
+    initialFit=fitSingleLM(initialData.points,0);
+    initialFit.originalPoints=initialData.points;
+  }
+  // Fit post-annealing datasets
+  var fits=[];
+  for(var i=0;i<datasets.length;i++){
+    var ds=datasets[i];
+    if(ds.points.length<3){
+      stEl.className='fit-status show fit-err';stEl.innerHTML='❌ '+ds.time+'h 数据不足（至少需要3个点）';
+      return;
+    }
+    var f=fitSingleLM(ds.points,ds.time);
+    f.originalPoints=ds.points;
+    fits.push(f);
+  }
+  // Geometric mean of D (excluding initial fit)
+  var Dgeo=Math.exp(fits.reduce(function(s,f){return s+Math.log(f.D);},0)/fits.length);
+  // Estimate sigma0 from measured initial data gradient (for quadrature addition in prediction)
+  var sigma0=1;
+  if(initialFit&&initialData&&initialData.points.length>=3){
+    sigma0=estimateSigma0(initialData.points,initialFit.C1,initialFit.C2);
+    sigma0=Math.max(sigma0,1); // floor at 1 nm to avoid singularity
+  }
+  fitState={datasets:datasets,fits:fits,D_geo_avg:Dgeo,initialData:initialData,initialFit:initialFit,sigma0:sigma0};
+  // Compute average parameters across all fits for robust prediction
+  if(fits.length>0){
+    fitState.avgC1=fits.reduce(function(s,f){return s+f.C1;},0)/fits.length;
+    fitState.avgC2=fits.reduce(function(s,f){return s+f.C2;},0)/fits.length;
+    fitState.avgX0=fits.reduce(function(s,f){return s+f.x0;},0)/fits.length;
+  }
+
+  var hasInit=initialFit?' (含初始态)':'';
+  stEl.className='fit-status show fit-ok';
+  if(msgs.length)stEl.className+=' fit-warn';
+  stEl.innerHTML='✅ 拟合完成 ('+datasets.length+'组退火数据'+hasInit+', LM算法)'+(msgs.length?'<br>'+msgs.join('<br>'):'');
+
+  var h='<div class="result-cards"><div class="r-card"><div class="r-val">'+(Dgeo*1e14).toExponential(2)+'</div><div class="r-lbl">D 几何平均 (nm²/s)</div></div>';
+  h+='<div class="r-card"><div class="r-val" style="color:var(--sec)">'+fits.map(function(f){return f.r2.toFixed(4);}).join(' / ')+'</div><div class="r-lbl">R²</div></div></div>';
+  h+='<table class="fit-table"><thead><tr><th>t</th><th>C₁(高)</th><th>C₂(低)</th><th>x₀</th><th>D</th><th>σ</th><th>R²</th></tr></thead><tbody>';
+  if(initialFit){
+    var fi=initialFit;
+    h+='<tr style="background:#fefce8"><td><b>0h (初始)</b></td><td>'+fi.C1.toFixed(2)+'%</td><td>'+fi.C2.toFixed(2)+'%</td><td>'+fi.x0.toFixed(1)+'nm</td><td>—</td><td>'+fi.sigma.toFixed(1)+'</td><td>'+fi.r2.toFixed(4)+'</td></tr>';
+  }
+  for(var i=0;i<fits.length;i++){
+    var f=fits[i];
+    h+='<tr><td><b>'+f.timeH+'h</b></td><td>'+f.C1.toFixed(2)+'%</td><td>'+f.C2.toFixed(2)+'%</td><td>'+f.x0.toFixed(1)+'nm</td><td>'+(f.D*1e14).toExponential(3)+'</td><td>'+f.sigma.toFixed(1)+'</td><td>'+f.r2.toFixed(4)+'</td></tr>';
+  }
+  h+='</tbody></table>';rsEl.innerHTML=h;drawFitChart(fits,initialFit);
+
+  // Auto-populate prediction sliders from average fitted parameters
+  if(fits.length>0){
+    document.getElementById('pC1').value=fitState.avgC1;document.getElementById('pC1v').textContent=fitState.avgC1.toFixed(1)+'%';
+    document.getElementById('pC2').value=fitState.avgC2;document.getElementById('pC2v').textContent=fitState.avgC2.toFixed(1)+'%';
+  }
+  document.getElementById('predNotice').style.display='none';
+  document.getElementById('predControls').style.display='block';
+}
 
 
 var chartFitInst=null;var COLS=['#2563eb','#d946ef','#059669','#f59e0b','#ef4444','#8b5cf6'];
-function drawFitChart(fits){if(chartFitInst)chartFitInst.destroy();var ds=[];
-for(var i=0;i<fits.length;i++){var f=fits[i],c=COLS[i%COLS.length];
-ds.push({label:f.timeH+'h 实验',data:f.originalPoints.map(function(p){return{x:p.x,y:p.c};}),borderColor:c,backgroundColor:c,pointRadius:5,showLine:false});
-var xs=f.originalPoints.map(function(p){return p.x;}).sort(function(a,b){return a-b;}),mn=xs[0],mx=xs[xs.length-1],cd=[];
-for(var x=mn;x<=mx;x+=(mx-mn)/200)cd.push({x:x,y:concModel(x,f.C1,f.C2,f.x0,f.sigma)});
-ds.push({label:f.timeH+'h 拟合',data:cd,borderColor:c,borderWidth:2.5,pointRadius:0,showLine:true,tension:0,fill:false});}
-chartFitInst=new Chart(document.getElementById('chartFit'),{type:'scatter',data:{datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{label:function(i){return i.dataset.label+': ('+i.parsed.x.toFixed(0)+'nm, '+i.parsed.y.toFixed(2)+'%)';}}}},scales:{x:{title:{display:true,text:'深度 (nm)'}},y:{title:{display:true,text:'Mo浓度 (%)'},min:0}}}});}
+function drawFitChart(fits,initialFit){
+  if(chartFitInst)chartFitInst.destroy();var ds=[];
+  var allFits=initialFit?[initialFit].concat(fits):fits;
+  for(var i=0;i<allFits.length;i++){
+    var f=allFits[i],c=COLS[i%COLS.length];
+    var lbl=f.isInitial?'初始态 实验':f.timeH+'h 实验';
+    ds.push({label:lbl,data:f.originalPoints.map(function(p){return{x:p.x,y:p.c};}),borderColor:c,backgroundColor:c,pointRadius:5,showLine:false});
+    var xs=f.originalPoints.map(function(p){return p.x;}).sort(function(a,b){return a-b;}),mn=xs[0],mx=xs[xs.length-1],cd=[];
+    for(var x=mn;x<=mx;x+=(mx-mn)/200)cd.push({x:x,y:concModel(x,f.C1,f.C2,f.x0,f.sigma)});
+    var flbl=f.isInitial?'初始态 拟合':f.timeH+'h 拟合';
+    ds.push({label:flbl,data:cd,borderColor:c,borderWidth:2.5,pointRadius:0,showLine:true,tension:0,fill:false});
+  }
+  chartFitInst=new Chart(document.getElementById('chartFit'),{type:'scatter',data:{datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{label:function(i){return i.dataset.label+': ('+i.parsed.x.toFixed(0)+'nm, '+i.parsed.y.toFixed(2)+'%)';}}}},scales:{x:{title:{display:true,text:'深度 (nm)'}},y:{title:{display:true,text:'Mo浓度 (%)'},min:0}}}});
+}
 
 var chartPredConcInst=null,chartPredFieldInst=null,chartPredBandInst=null,lastPredict=null,predictData=null;
-function runPredict(){if(!fitState){alert('请先完成拟合');return;}
-var C1=parseFloat(document.getElementById('pC2').value),C2=parseFloat(document.getElementById('pC1').value);
-var thick=parseFloat(document.getElementById('pThick').value),iface=parseFloat(document.getElementById('pIface').value),timeH=parseFloat(document.getElementById('pTime').value);
-var x0=(iface/100)*thick,D=fitState.D_geo_avg,sigma=Math.sqrt(2*D*timeH*3600);
-document.getElementById('pC1v').textContent=C2.toFixed(1)+'%';document.getElementById('pC2v').textContent=C1.toFixed(1)+'%';
-document.getElementById('pThickv').textContent=thick+'nm';document.getElementById('pIfacev').textContent=iface+'%';document.getElementById('pTimev').textContent=timeH.toFixed(1)+'h';
-var N=300,dx=thick/N,depth=[],conc=[],stepC=[],field=[],bandCB=[],bandEF=[],bandVB=[],kT=kB_eV*T_ANNEAL;
-for(var i=0;i<=N;i++){var x=i*dx;depth.push(x);stepC.push(x<x0?C1:C2);conc.push(concModel(x,C1,C2,x0,sigma));}
-var Cref=Math.max((C1+C2)/2,.001);
-for(var i=0;i<=N;i++){var c=conc[i],d;i===0?d=(conc[1]-conc[0])/dx:i===N?d=(conc[N]-conc[N-1])/dx:d=(conc[i+1]-conc[i-1])/(2*dx);
-var cs=Math.max(c,.001);field.push(-(kT/cs)*d*1e7);var sh=kT*1000*Math.log(cs/Cref);bandCB.push(1200-sh);bandEF.push(0);bandVB.push(-1200-sh);}
-var maxE=0;for(var i=0;i<field.length;i++)if(Math.abs(field[i])>maxE)maxE=Math.abs(field[i]);
-var mg=0;for(var i=1;i<conc.length;i++){var g=Math.abs(conc[i]-conc[i-1])/dx;if(g>mg)mg=g;}
-document.getElementById('predSummary').style.display='grid';
-document.getElementById('rMaxE').textContent=maxE.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');
-document.getElementById('rSigma').textContent=sigma.toFixed(1);document.getElementById('rGrad').textContent=mg.toFixed(4);
-lastPredict={depth:depth,conc:conc,stepC:stepC,field:field,bandCB:bandCB,bandEF:bandEF,bandVB:bandVB};
-predictData={depth:depth,conc:conc,stepC:stepC,field:field,bandCB:bandCB,bandEF:bandEF,bandVB:bandVB,x0:x0};
-requestAnimationFrame(drawPred);}
+var predictTimer=null, DEBOUNCE_MS=200;
 
-function drawPred(){if(!predictData)return;var d=predictData,lb=d.depth.map(function(v){return v.toFixed(1);});
-var ifaceP={id:'ifl',afterDraw:function(ch){var ctx=ch.ctx,ca=ch.chartArea,sc=ch.scales;if(!sc.x)return;var px=(function(){var n=d.depth.length-1,total=d.depth[n];return sc.x.getPixelForValue(Math.round(d.x0*n/total));})();if(px<ca.left||px>ca.right)return;ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(100,100,100,.35)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(100,100,100,.6)';ctx.font='11px sans-serif';ctx.fillText('界面',px+4,ca.top+14);ctx.restore();}};
-try{if(chartPredConcInst)chartPredConcInst.destroy();chartPredConcInst=new Chart(document.getElementById('chartPredConc'),{type:'line',data:{labels:lb,datasets:[{label:'退火前',data:d.stepC.slice(),borderColor:'rgba(148,163,184,.5)',borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false,tension:0},{label:'退火后',data:d.conc.slice(),borderColor:'#2563eb',borderWidth:2.5,pointRadius:0,fill:{target:'origin',above:'rgba(37,99,235,.08)'},tension:0}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{title:function(i){return'深度:'+i[0].label+'nm';},label:function(i){return i.dataset.label+': '+i.parsed.y.toFixed(2)+'%';}}}},scales:{x:{title:{display:true,text:'膜深度 (nm)'}},y:{title:{display:true,text:'Mo浓度 (%)'},min:0}}},plugins:[ifaceP]});}catch(e){console.error('Conc chart error:',e);}
-try{if(chartPredFieldInst)chartPredFieldInst.destroy();var pf=d.field.map(function(v){return v>=0?v:null;}),nf=d.field.map(function(v){return v<=0?v:null;});chartPredFieldInst=new Chart(document.getElementById('chartPredField'),{type:'line',data:{labels:lb,datasets:[{label:'E>0',data:pf,borderColor:'#d946ef',borderWidth:2.5,pointRadius:0,fill:{target:'origin',above:'rgba(217,70,239,.12)'},tension:0,spanGaps:false},{label:'E<0',data:nf,borderColor:'#059669',borderWidth:2.5,pointRadius:0,fill:{target:'origin',below:'rgba(5,150,105,.12)'},tension:0,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{title:function(i){return'深度:'+i[0].label+'nm';},label:function(i){return'E='+d.field[i.dataIndex].toFixed(0)+' V/cm';}}}},scales:{x:{title:{display:true,text:'膜深度 (nm)'}},y:{title:{display:true,text:'E_bi (V/cm)'}}}},plugins:[ifaceP]});}catch(e){console.error('Field chart error:',e);}
-try{if(chartPredBandInst)chartPredBandInst.destroy();chartPredBandInst=new Chart(document.getElementById('chartPredBand'),{type:'line',data:{labels:lb,datasets:[{label:'E_CB',data:d.bandCB.slice(),borderColor:'#2563eb',borderWidth:2.5,pointRadius:0,fill:false,tension:0},{label:'E_F',data:d.bandEF.slice(),borderColor:'#059669',borderWidth:2,borderDash:[6,3],pointRadius:0,fill:false,tension:0},{label:'E_VB',data:d.bandVB.slice(),borderColor:'#dc2626',borderWidth:2.5,pointRadius:0,fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{title:function(i){return'深度:'+i[0].label+'nm';},label:function(i){return i.dataset.label+': '+i.parsed.y.toFixed(1)+' meV';}}}},scales:{x:{title:{display:true,text:'膜深度 (nm)'}},y:{title:{display:true,text:'能量 (meV)'}}}},plugins:[ifaceP]});}catch(e){console.error('Band chart error:',e);}
+// Estimate initial gradient width sigma0 from measured pre-annealing data
+// For an erf profile: max |dC/dx| = |C1-C2| / (sigma * sqrt(pi))
+function estimateSigma0(points,C1,C2){
+  var pts=points.slice().sort(function(a,b){return a.x-b.x;});
+  var maxG=0;
+  for(var i=1;i<pts.length;i++){
+    var g=Math.abs(pts[i].c-pts[i-1].c)/Math.max(pts[i].x-pts[i-1].x,0.01);
+    if(g>maxG)maxG=g;
+  }
+  var deltaC=Math.abs(C1-C2);
+  return maxG>0?deltaC/(Math.sqrt(Math.PI)*maxG):1;
+}
+
+function runPredict(){
+  if(!fitState){return;}
+  var C1=parseFloat(document.getElementById('pC1').value), C2=parseFloat(document.getElementById('pC2').value);
+  var thick=parseFloat(document.getElementById('pThick').value),iface=parseFloat(document.getElementById('pIface').value),timeH=parseFloat(document.getElementById('pTime').value);
+  var x0=(iface/100)*thick,D=fitState.D_geo_avg;
+  // At t≈0 use measured initial width sigma0; at t>0 use diffusion-only sigma = sqrt(2Dt)
+  // (fitted D already captures the full broadening from initial to annealed state)
+  var sigma0=fitState.sigma0||1;
+  var sigma=timeH<0.01?sigma0:Math.sqrt(2*D*timeH*3600);
+  document.getElementById('pC1v').textContent=C1.toFixed(1)+'%';document.getElementById('pC2v').textContent=C2.toFixed(1)+'%';
+  document.getElementById('pThickv').textContent=thick+'nm';document.getElementById('pIfacev').textContent=iface+'%';document.getElementById('pTimev').textContent=timeH.toFixed(1)+'h';
+  var N=300,dx=thick/N,depth=[],conc=[],stepC=[],field=[],bandCB=[],bandEF=[],bandVB=[],kT=kB_eV*T_ANNEAL;
+
+  // Build pre-annealing profile: use measured initial data if available, otherwise step function
+  var initPoints=null;
+  if(fitState.initialData&&fitState.initialData.points&&fitState.initialData.points.length>=2){
+    initPoints=fitState.initialData.points;
+    // Sort by depth
+    initPoints=initPoints.slice().sort(function(a,b){return a.x-b.x;});
+    // Map to full depth grid by linear interpolation
+    var scaleX=(initPoints[initPoints.length-1].x-initPoints[0].x)>0?
+      thick/(initPoints[initPoints.length-1].x-initPoints[0].x):1;
+    // Build interpolator function
+    var ipIdx=0;
+    for(var i=0;i<=N;i++){
+      var x=i*dx;
+      // Map depth to initial data scale
+      var sx=x/scaleX;
+      while(ipIdx<initPoints.length-1&&initPoints[ipIdx+1].x<sx)ipIdx++;
+      if(ipIdx>=initPoints.length-1){
+        stepC.push(initPoints[initPoints.length-1].c);
+      }else if(sx<=initPoints[0].x){
+        stepC.push(initPoints[0].c);
+      }else{
+        var p0=initPoints[ipIdx],p1=initPoints[Math.min(ipIdx+1,initPoints.length-1)];
+        var t=(p1.x-p0.x)>0?(sx-p0.x)/(p1.x-p0.x):0;
+        stepC.push(p0.c+t*(p1.c-p0.c));
+      }
+    }
+  }else{
+    // Fallback: simple step function
+    for(var i=0;i<=N;i++){var x=i*dx;stepC.push(x<x0?C1:C2);}
+  }
+
+  for(var i=0;i<=N;i++){var x=i*dx;depth.push(x);conc.push(concModel(x,C1,C2,x0,sigma));}
+  var Cref=Math.max((C1+C2)/2,.001);
+  for(var i=0;i<=N;i++){
+    var c=conc[i],d;
+    i===0?d=(conc[1]-conc[0])/dx:i===N?d=(conc[N]-conc[N-1])/dx:d=(conc[i+1]-conc[i-1])/(2*dx);
+    var cs=Math.max(c,.001);
+    field.push(-(kT/cs)*d*1e7);
+    var sh=kT*1000*Math.log(cs/Cref);
+    // Both bands shift by same electrostatic potential, maintaining constant band gap
+    bandCB.push(1200-sh);
+    bandEF.push(0);
+    bandVB.push(-1200-sh);
+  }
+  var maxE=0;for(var i=0;i<field.length;i++)if(Math.abs(field[i])>maxE)maxE=Math.abs(field[i]);
+  var mg=0;for(var i=1;i<conc.length;i++){var g=Math.abs(conc[i]-conc[i-1])/dx;if(g>mg)mg=g;}
+  document.getElementById('predSummary').style.display='grid';
+  document.getElementById('rMaxE').textContent=maxE.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('rSigma').textContent=sigma.toFixed(1);document.getElementById('rGrad').textContent=mg.toFixed(4);
+  lastPredict={depth:depth,conc:conc,stepC:stepC,field:field,bandCB:bandCB,bandEF:bandEF,bandVB:bandVB};
+  predictData={depth:depth,conc:conc,stepC:stepC,field:field,bandCB:bandCB,bandEF:bandEF,bandVB:bandVB,x0:x0,hasInitialData:!!initPoints};
+  requestAnimationFrame(drawPred);
+}
+
+function drawPred(){
+  if(!predictData)return;var d=predictData,lb=d.depth.map(function(v){return v.toFixed(1);});
+  var ifaceP={id:'ifl',afterDraw:function(ch){var ctx=ch.ctx,ca=ch.chartArea,sc=ch.scales;if(!sc.x)return;var px=(function(){var n=d.depth.length-1,total=d.depth[n];return sc.x.getPixelForValue(Math.round(d.x0*n/total));})();if(px<ca.left||px>ca.right)return;ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(100,100,100,.35)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(100,100,100,.6)';ctx.font='11px sans-serif';ctx.fillText('界面',px+4,ca.top+14);ctx.restore();}};
+
+  // Concentration chart
+  try{
+    if(chartPredConcInst)chartPredConcInst.destroy();
+    var beforeLabel=d.hasInitialData?'退火前(实测)':'退火前';
+    chartPredConcInst=new Chart(document.getElementById('chartPredConc'),{type:'line',data:{labels:lb,datasets:[
+      {label:beforeLabel,data:d.stepC.slice(),borderColor:'rgba(148,163,184,.5)',borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false,tension:0},
+      {label:'退火后',data:d.conc.slice(),borderColor:'#2563eb',borderWidth:2.5,pointRadius:0,fill:{target:'origin',above:'rgba(37,99,235,.08)'},tension:0}
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{title:function(i){return'深度:'+i[0].label+'nm';},label:function(i){return i.dataset.label+': '+i.parsed.y.toFixed(2)+'%';}}}},scales:{x:{title:{display:true,text:'膜深度 (nm)'}},y:{title:{display:true,text:'Mo浓度 (%)'},min:0}}},plugins:[ifaceP]});
+  }catch(e){console.error('Conc chart error:',e);}
+
+  // Field chart
+  try{
+    if(chartPredFieldInst)chartPredFieldInst.destroy();
+    var pf=d.field.map(function(v){return v>=0?v:null;}),nf=d.field.map(function(v){return v<=0?v:null;});
+    chartPredFieldInst=new Chart(document.getElementById('chartPredField'),{type:'line',data:{labels:lb,datasets:[
+      {label:'E>0',data:pf,borderColor:'#d946ef',borderWidth:2.5,pointRadius:0,fill:{target:'origin',above:'rgba(217,70,239,.12)'},tension:0,spanGaps:false},
+      {label:'E<0',data:nf,borderColor:'#059669',borderWidth:2.5,pointRadius:0,fill:{target:'origin',below:'rgba(5,150,105,.12)'},tension:0,spanGaps:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{title:function(i){return'深度:'+i[0].label+'nm';},label:function(i){return'E='+d.field[i.dataIndex].toFixed(0)+' V/cm';}}}},scales:{x:{title:{display:true,text:'膜深度 (nm)'}},y:{title:{display:true,text:'E_bi (V/cm)'}}}},plugins:[ifaceP]});
+  }catch(e){console.error('Field chart error:',e);}
+
+  // Band bending chart
+  try{
+    if(chartPredBandInst)chartPredBandInst.destroy();
+    chartPredBandInst=new Chart(document.getElementById('chartPredBand'),{type:'line',data:{labels:lb,datasets:[
+      {label:'E_CB',data:d.bandCB.slice(),borderColor:'#2563eb',borderWidth:2.5,pointRadius:0,fill:false,tension:0},
+      {label:'E_F',data:d.bandEF.slice(),borderColor:'#059669',borderWidth:2,borderDash:[6,3],pointRadius:0,fill:false,tension:0},
+      {label:'E_VB',data:d.bandVB.slice(),borderColor:'#dc2626',borderWidth:2.5,pointRadius:0,fill:false,tension:0}
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true}},tooltip:{callbacks:{title:function(i){return'深度:'+i[0].label+'nm';},label:function(i){return i.dataset.label+': '+i.parsed.y.toFixed(1)+' meV';}}}},scales:{x:{title:{display:true,text:'膜深度 (nm)'}},y:{title:{display:true,text:'能量 (meV)'}}}},plugins:[ifaceP]});
+  }catch(e){console.error('Band chart error:',e);}
 }
 
 function dlCSV(fn,hd,rs){var c=hd.join(',')+'\n';for(var i=0;i<rs.length;i++)c+=rs[i].join(',')+'\n';var b=new Blob(['﻿'+c],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();URL.revokeObjectURL(a.href);}
-function exportFitCSV(){if(!fitState)return;var r=[];for(var i=0;i<fitState.fits.length;i++){var f=fitState.fits[i];for(var j=0;j<f.originalPoints.length;j++){var p=f.originalPoints[j];r.push([f.timeH,p.x.toFixed(1),p.c.toFixed(3),concModel(p.x,f.C1,f.C2,f.x0,f.sigma).toFixed(3)]);}}dlCSV('fit.csv',['t(h)','depth(nm)','exp(%)','fit(%)'],r);}
+function exportFitCSV(){if(!fitState)return;var r=[];
+  var allFits=fitState.initialFit?[fitState.initialFit].concat(fitState.fits):fitState.fits;
+  for(var i=0;i<allFits.length;i++){var f=allFits[i];for(var j=0;j<f.originalPoints.length;j++){var p=f.originalPoints[j];r.push([f.timeH,p.x.toFixed(1),p.c.toFixed(3),concModel(p.x,f.C1,f.C2,f.x0,f.sigma).toFixed(3)]);}}
+  dlCSV('fit.csv',['t(h)','depth(nm)','exp(%)','fit(%)'],r);
+}
 function exportPredConcCSV(){if(!lastPredict)return;var r=[];for(var i=0;i<lastPredict.depth.length;i++)r.push([lastPredict.depth[i].toFixed(1),lastPredict.stepC[i].toFixed(3),lastPredict.conc[i].toFixed(3)]);dlCSV('conc.csv',['depth(nm)','before(%)','after(%)'],r);}
 function exportPredFieldCSV(){if(!lastPredict)return;var r=[];for(var i=0;i<lastPredict.depth.length;i++)r.push([lastPredict.depth[i].toFixed(1),lastPredict.field[i].toFixed(1)]);dlCSV('efield.csv',['depth(nm)','E(V/cm)'],r);}
 function exportPredBandCSV(){if(!lastPredict)return;var r=[];for(var i=0;i<lastPredict.depth.length;i++)r.push([lastPredict.depth[i].toFixed(1),lastPredict.bandCB[i].toFixed(1),lastPredict.bandEF[i].toFixed(1),lastPredict.bandVB[i].toFixed(1)]);dlCSV('band.csv',['depth(nm)','ECB(meV)','EF(meV)','EVB(meV)'],r);}
 
 function switchTab(id,btn){var tabs=document.querySelectorAll('.tab-content');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');var btns=document.querySelectorAll('.tab-btn');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');document.getElementById(id).classList.add('active');btn.classList.add('active');}
-function loadDemo(){document.getElementById('dataInput').value="#time=1\n0\t5.0\n20\t4.8\n40\t4.1\n60\t3.2\n80\t2.3\n100\t1.6\n120\t1.3\n140\t1.1\n160\t1.0\n180\t1.0\n200\t1.0\n\n#time=2\n0\t5.0\n20\t4.9\n40\t4.4\n60\t3.7\n80\t2.9\n100\t2.1\n120\t1.7\n140\t1.3\n160\t1.2\n180\t1.1\n200\t1.1\n\n#time=4\n0\t5.0\n20\t4.9\n40\t4.7\n60\t4.2\n80\t3.6\n100\t2.8\n120\t2.3\n140\t1.8\n160\t1.5\n180\t1.3\n200\t1.2";}
 
+function loadDemo(){
+  document.getElementById('dataInput').value="#time=0\n0\t1.0\n20\t1.0\n40\t1.0\n60\t1.0\n80\t1.0\n90\t1.1\n95\t1.5\n100\t3.0\n105\t4.5\n110\t4.9\n120\t5.0\n140\t5.0\n160\t5.0\n180\t5.0\n200\t5.0\n\n#time=1\n0\t1.0\n20\t1.0\n40\t1.0\n60\t1.0\n80\t1.3\n90\t1.9\n100\t3.0\n110\t4.1\n120\t4.7\n140\t5.0\n160\t5.0\n180\t5.0\n200\t5.0\n\n#time=2\n0\t1.0\n20\t1.0\n40\t1.0\n60\t1.1\n80\t1.6\n90\t2.2\n100\t3.0\n110\t3.8\n120\t4.4\n140\t4.9\n160\t5.0\n180\t5.0\n200\t5.0\n\n#time=4\n0\t1.0\n20\t1.0\n40\t1.1\n60\t1.3\n80\t1.9\n90\t2.4\n100\t3.0\n110\t3.6\n120\t4.1\n140\t4.7\n160\t5.0\n180\t5.0\n200\t5.0";
+}
+
+// Slider listeners with debounce
 var sliderIds=['pC1','pC2','pThick','pIface','pTime'];
-for(var si=0;si<sliderIds.length;si++){(function(id){document.getElementById(id).addEventListener('input',function(){if(fitState)runPredict();var v=document.getElementById(id).value;document.getElementById(id+'v').textContent=(id==='pC1'||id==='pC2')?parseFloat(v).toFixed(1)+'%':id==='pThick'?v+'nm':id==='pIface'?v+'%':parseFloat(v).toFixed(1)+'h';});})(sliderIds[si]);}
+for(var si=0;si<sliderIds.length;si++){(function(id){
+  document.getElementById(id).addEventListener('input',function(){
+    // Update badge immediately
+    var v=document.getElementById(id).value;
+    document.getElementById(id+'v').textContent=(id==='pC1'||id==='pC2')?parseFloat(v).toFixed(1)+'%':id==='pThick'?v+'nm':id==='pIface'?v+'%':parseFloat(v).toFixed(1)+'h';
+    // Debounce prediction
+    if(predictTimer)clearTimeout(predictTimer);
+    if(fitState)predictTimer=setTimeout(runPredict,DEBOUNCE_MS);
+  });
+})(sliderIds[si]);}
 
 // Help modal
 (function(){
